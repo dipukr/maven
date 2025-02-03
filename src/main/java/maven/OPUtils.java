@@ -50,7 +50,7 @@ public class OPUtils {
 		}
 	}
 	
-	public List<String> getLines(String filePath) {
+	public List<String> fileLines(String filePath) {
 		var lines = new ArrayList<String>();
 		try {
 			lines.addAll(Files.lines(Path.of(filePath)).toList());
@@ -63,7 +63,7 @@ public class OPUtils {
 	
 	public static void main(final String[] args) {
 		var utils = new OPUtils();
-		List<String> lines = utils.getLines("~/RESEARCH/neem.oc");
+		List<String> lines = utils.fileLines("~/RESEARCH/neem.oc");
 		utils.genJava(lines);
 		utils.genCPP(lines);
 	}

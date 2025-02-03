@@ -10,10 +10,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Brute {
+public class Password {
 	public static void apply(String password, PrintWriter writer) throws Exception {
-		Runtime runtime = Runtime.getRuntime();
-		Process process = runtime.exec("/home/dkumar/auth");
+		Process process = Runtime.getRuntime().exec("/home/dkumar/auth");
 		InputStream inputStream = process.getInputStream();
 		OutputStream outputStream = process.getOutputStream();
 		outputStream.write(password.getBytes());
@@ -33,7 +32,8 @@ public class Brute {
 		if (retval == 0)
 			writer.println(password + ": " + data);
 	}
-	public static void main(String[] args) throws Exception {
+	
+	public static void main(final String[] args) throws Exception {
 		List<String> lines = Files.lines(Paths.get("/home/dkumar/dict"))
 			.collect(Collectors.toList());
 		PrintWriter wr = new PrintWriter("/home/dkumar/dumps");

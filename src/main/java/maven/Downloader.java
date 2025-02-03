@@ -21,28 +21,23 @@ public class Downloader {
 	}
 
 	public void download() {
-		RandomAccessFile file = null;
-		InputStream stream = null;
-		try {
+		try (var file = new RandomAccessFile(getFileName(), "rw")) {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestProperty("Range", String.format("bytes=%d-", count));
 			connection.connect();
-			size = connection.getContentLength();
-			if (size < 1) Error.fatal("fatal");
-			file = new RandomAccessFile(getFileName(), "rw");
+			this.size = connection.getContentLength();
+			if (size < 1) Error.fatal("Fatal error.");
 			file.seek(count);
-			stream = connection.getInputStream();
+			InputStream stream = connection.getInputStream();
 			byte[] buffer = new byte[MAX_BUFFER_SIZE];
 			while (true) {
 				int read = stream.read(buffer, 0, buffer.length);
 				if (read == -1) break;
 				file.write(buffer, 0, read);
-				count += read;
+				this.count += read;
 			}
-			file.close();
-			stream.close();
 		} catch (IOException e) {
-			Error.fatal("Could not download file "+getFileName());
+			Error.fatal("Could not download file " + getFileName());
 		}
 	}
 	
