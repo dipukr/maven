@@ -3,11 +3,12 @@ package maven;
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 
 public class Loader {
 	public static void main(final String[] args) throws Exception {
-		URL url = new URL("https://www.sfml-dev.org/index.php");
+		URL url = URI.create("https://www.sfml-dev.org/index.php").toURL();
 		InputStream inputStream = url.openStream();
 		String file = url.getFile().substring(1);
 		BufferedInputStream in = new BufferedInputStream(inputStream);
