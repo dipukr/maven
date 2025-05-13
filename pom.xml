@@ -31,6 +31,7 @@
 			<version>9.1.0</version>
 		</dependency>
 		<dependency>
+<<<<<<< HEAD
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>5.4.0</version>
@@ -39,6 +40,11 @@
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
 			<version>5.3.0</version>
+=======
+			<groupId>com.github.javafaker</groupId>
+			<artifactId>javafaker</artifactId>
+			<version>1.0.2</version>
+>>>>>>> 7093fd9d3b8940387811ac1c01bb762e6429608e
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -46,5 +52,13 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
+<<<<<<< HEAD
+=======
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.3</version>
+		</dependency>
+>>>>>>> 7093fd9d3b8940387811ac1c01bb762e6429608e
 	</dependencies>
 </project>
