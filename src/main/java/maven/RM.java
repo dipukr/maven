@@ -20,7 +20,7 @@ public class RM {
 				.filter(File::exists)
 				.toList();
 			for (File file: files)
-				System.out.printf("%sFile:%s %s\n", RED, RESET, file.getCanonicalPath());
+				System.out.printf("%sFile:%s %s\n", RED, RESET, file.getAbsolutePath());
 			System.out.print("Proceed? [Yes/No]: ");
 			try (Scanner scanner = new Scanner(System.in)) {
 				String word = scanner.next();
@@ -29,13 +29,14 @@ public class RM {
 			}
 			for (File file: files) {
 				if (file.delete()) {
-					System.out.printf("%sDeleted:%s %s\n", RED, RESET, file.getCanonicalPath());
+					System.out.printf("%sDeleted:%s %s\n", RED, RESET, file.getAbsolutePath());
 				} else {
-					System.out.printf("%sFailed:%s %s\n", RED, RESET, file.getCanonicalPath());
+					System.out.printf("%sFailed:%s %s\n", RED, RESET, file.getAbsolutePath());
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("ERROR: .rmall not found.");
+			System.getenv("HOME");
+			System.out.println("ERROR: file '$HOME/.rmall' not found.");
 		}
 	}
 }

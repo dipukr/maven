@@ -8,11 +8,10 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-public class Dict {
-	public static void tryOne(String password, PrintWriter wr) throws Exception {
+public class DA {
+	public static void apply(String password, PrintWriter wr) throws Exception {
 		Runtime runtime = Runtime.getRuntime();
 		Process process = runtime.exec("/home/dkumar/RESEARCH/auth");
 		InputStream inputStream = process.getInputStream();
@@ -34,13 +33,13 @@ public class Dict {
 		if (retval == 0)
 			wr.println(password + ": " + data.toString());
 	}
+	
 	public static void main(String[] args) throws Exception {
-		List<String> lines = Files.lines(Paths.get("/home/dkumar/RESEARCH/word1"))
+		List<String> lines = Files.lines(Paths.get("/home/dkumar/RESEARCH/words"))
 			.collect(Collectors.toList());
 		PrintWriter wr = new PrintWriter("/home/dkumar/dumps");
-		for (String line: lines) {
-			tryOne(line, wr);
-		}
+		for (String line: lines)
+			apply(line, wr);
 		wr.close();
 	}
 }

@@ -29,5 +29,7 @@ public class List {
 		}
 		dirPaths.stream().forEach(System.out::println);
 		filePaths.stream().forEach(System.out::println);
+		System.out.printf("Files: %d\n", filePaths.size());
+		System.out.printf("Folders: %d\n", dirPaths.size());
 	}
 }
