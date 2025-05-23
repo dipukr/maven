@@ -14,8 +14,7 @@ public class Server {
 	}
 
 	public void start() {
-		try {
-			ServerSocket socket = new ServerSocket(port);
+		try (ServerSocket socket = new ServerSocket(port)) {
 			while (true) {
 				System.out.printf("Listening at port %d.\n", 6789);
 				Socket clientSocket = socket.accept();
