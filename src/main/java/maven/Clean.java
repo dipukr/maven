@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 public class Clean {
-	public static void main(final String[] args) throws Exception {
+	public static void main(final String[] args) {
 		File dir = new File("/home/dkumar/RESEARCH");
 		File[] files = dir.listFiles();
 		for (File file: files) {
@@ -19,9 +19,14 @@ public class Clean {
 			}
 			if (file.isFile() && file.canExecute()) {
 				String filePath = file.getAbsolutePath();
-				Optional<String> first = Files.lines(Path.of(filePath)).findFirst();
-				if (first.isPresent() && first.get().startsWith("#!"));
-				else file.delete();
+				Optional<String> first = null;
+				try {
+					first = Files.lines(Path.of(filePath)).findFirst();
+					if (first.isPresent() && first.get().startsWith("#!"));
+					else file.delete();
+				} catch (Exception e) {
+					file.delete();
+				}
 			}
 		}
 	}
