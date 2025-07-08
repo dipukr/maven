@@ -1,14 +1,20 @@
 package maven;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.bson.Document;
@@ -43,7 +49,12 @@ public class MonDB {
 		return meterNos;
 	}
 	
-	public static void getData(MongoDatabase database, String meterNo, String date) throws Exception {
+	public static BigDecimal roundUP(BigDecimal num, int decimalCount) {
+		if (num == null) return null;
+		return num.setScale(decimalCount, RoundingMode.HALF_UP);
+	}
+	
+	public static void getData(MongoDatabase database, String meterNo, String date, String param) throws Exception {
 		MongoCollection<Document> meterDataColl = database.getCollection("pnPR_VEELoadSuveyData");
 		Date forDate = getDate(date);
 		Bson dateFilter = Filters.and(Filters.gte("forDate", forDate),
@@ -51,8 +62,13 @@ public class MonDB {
 		Bson meterFilter = Filters.eq("meterNo", meterNo);
 		Bson filter = Filters.and(dateFilter, meterFilter);
 		FindIterable<Document> meterData = meterDataColl.find(filter);
-		System.out.println(meterDataColl.countDocuments(filter));
-		System.out.println("hello");
+		for (Document doc: meterData) {
+			Document dc = (Document) doc.get(param);
+			Map<Integer, BigDecimal> blockWiseQtms = new TreeMap<>();
+			dc.entrySet().forEach(elem -> blockWiseQtms.put(Integer.valueOf(elem.getKey()), new BigDecimal((String)elem.getValue())));
+			for (BigDecimal qtm: blockWiseQtms.values())
+				System.out.println(roundUP(qtm.divide(new BigDecimal("1000.0")), 5));
+		}
 	}
 	
 	public static void meterData(MongoCollection<Document> meterDataColl, Set<String> meterNos, String from, String to) throws Exception {
@@ -79,7 +95,7 @@ public class MonDB {
 			MongoCollection<Document> meterDetailsColl = database.getCollection("SecureMeterDetails");
 			MongoCollection<Document> meterDataColl = database.getCollection("pnPR_VEELoadSuveyData");
 			//Set<String> meterNos = findAllMeterNos(meterDetailsColl);
-			getData(database, "PBB48440", "2025-04-28T18:30:00.000Z");
+			getData(database, "PST00413", "2025-06-01T18:30:00.000Z", "kwh_exp");
 		}
 	}
 }
