@@ -95,7 +95,7 @@ public class MonDB {
 			MongoCollection<Document> meterDetailsColl = database.getCollection("SecureMeterDetails");
 			MongoCollection<Document> meterDataColl = database.getCollection("pnPR_VEELoadSuveyData");
 			//Set<String> meterNos = findAllMeterNos(meterDetailsColl);
-			getData(database, "PST00413", "2025-06-01T18:30:00.000Z", "kwh_exp");
+			getData(database, "PBB48440", "2025-05-15T18:30:00.000Z", "kwh_imp");
 		}
 	}
 }

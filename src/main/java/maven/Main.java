@@ -16,7 +16,7 @@ public class Main {
 		return null;
 	}
 	public static void main(final String[] args) throws Exception {
-		List<String> qtms = Files.lines(Path.of("/home/dkumar/sch.data")).toList();
+		List<String> qtms = Files.lines(Path.of("/home/dkumar/sch.dat")).toList();
 		int blockNo = 1;
 //		for (String qtm: qtms) {
 //			double quantum = Double.valueOf(qtm);
@@ -27,9 +27,9 @@ public class Main {
 		blockNo = 1;
 		for (String qtm: qtms) {
 			double quantum = Double.valueOf(qtm);
-			quantum = roundUp(quantum - quantum*6.05/100.0, 3);
+			quantum = roundUp(quantum - quantum*6.0/100.0, 2);
 			System.out.printf("INSERT INTO drawl_schedule_details (quantum_of_power, time_interval_uid, drawl_schedule_uid) "
-					+ "VALUES ('%f', '%d', $$$$$);\n", quantum, blockNo);
+					+ "VALUES ('%f', '%d', '61389');\n", quantum, blockNo);
 			blockNo += 1;
 		}
 	}
