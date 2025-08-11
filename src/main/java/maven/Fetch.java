@@ -1,14 +1,15 @@
 package maven;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 
 public class Fetch {	
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws Exception {
 		if (args.length != 1) return;
 		String fileName = args[0];
-		List<String> dirs = List.of("/home/server/RESEARCH",
-			"/home/server/sources", "/home/server/SAMAST");
+		List<String> dirs = Files.lines(Path.of("/etc/fetch")).toList();
 		Search search = new Search(dirs);
 		List<String> paths = search.search(fileName);
 		if (paths == null) {
