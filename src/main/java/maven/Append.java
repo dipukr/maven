@@ -5,15 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class Add {
+public class Append {
 
 	private final File file;
 
-	public Add(File file) {
+	public Append(File file) {
 		this.file = file;
 	}
 
-	public void add(String text) {
+	public void append(String text) {
 		try (var raf = new RandomAccessFile(this.file, "rw")) {
 			long length = file.length();
 			raf.seek(length - 1);
@@ -29,11 +29,11 @@ public class Add {
 		} 
 	}
 
-	public static void main(final String[] args) {
+	public static void main(String[] args) {
 		if (args.length != 1) return;
 		File file = new File(args[0]);
-		Add add = new Add(file);
+		Append add = new Append(file);
 		for (int i = 1; i < args.length; i++)
-			add.add(args[i]);
+			add.append(args[i]);
 	}
 }

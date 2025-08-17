@@ -6,10 +6,9 @@ import java.awt.image.Kernel;
 import java.io.File;
 import javax.imageio.ImageIO;
 
-public class ImageUtils {
-
-	public static void blur() throws Exception {
-		File file = new File("apple.jpg");
+public class Images {
+	public static void main(String[] args) throws Exception {
+		File file = new File("resources/apple.jpg");
 		BufferedImage input = ImageIO.read(file);
 
 		// Create a Gaussian kernel (5x5 kernel)
@@ -31,10 +30,5 @@ public class ImageUtils {
 		ImageIO.write(blurred, "jpg", new File("output.jpg"));
 
 		System.out.println("Blur applied and saved to output.jpg");
-	}
-	
-	public static void main(final String[] args) throws Exception {
-		//for (int i = 0; i < 100; i++)
-				blur();
 	}
 }
