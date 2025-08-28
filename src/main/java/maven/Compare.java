@@ -38,7 +38,5 @@ public class Compare {
 		String dir = "/home/dkumar/";
 		File file1 = new File(dir + "dsm-reports.xlsx");
 		File file2 = new File(dir + "solar-power.xlsx");
-		file1.
-		
 	}
 }
