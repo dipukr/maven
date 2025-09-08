@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.function.*;
 
 public class Count {
-
 	public static long count(String filePath) {
 		try {
 			return Files.lines(Path.of(filePath)).count();
@@ -18,7 +17,7 @@ public class Count {
 		}
 	}
 
-	public static void main(final String[] args) {
+	public static void main(String[] args) {
 		File root = new File(".");
 		Predicate<String> pred = null;
 		if (args.length == 0) pred = arg -> true;

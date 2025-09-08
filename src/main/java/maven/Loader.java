@@ -8,18 +8,21 @@ import java.net.URL;
 
 public class Loader {
 	public static void main(final String[] args) throws Exception {
+		long start = System.currentTimeMillis();
 		URL url = URI.create("https://www.sfml-dev.org/index.php").toURL();
 		InputStream inputStream = url.openStream();
 		String file = url.getFile().substring(1);
 		BufferedInputStream in = new BufferedInputStream(inputStream);
 		FileOutputStream fos = new FileOutputStream(file);
-		byte[] buffer = new byte[1024];
+		final int BUF_SZ = 1 << 12;
+		byte[] buffer = new byte[BUF_SZ];
 		while (true) {
-			int count = in.read(buffer, 0, 1024);
+			int count = in.read(buffer, 0, BUF_SZ);
 			if (count == -1) break;
 			fos.write(buffer, 0, count);
 		}
 		fos.close();
-		System.out.println("Downloaded.");
+		long end = System.currentTimeMillis();
+		System.out.printf("Downloaded in %d millis.", end - start);
 	}
 }

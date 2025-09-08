@@ -2,7 +2,6 @@ package maven;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.math.BigDecimal;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -12,7 +11,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 public class Compare {
-	public void compare(File file1, File file2, File file3, String sheetName, int rowStart, int rowEnd, int colStart, int colEnd) throws Exception {
+	public void compare(File file1, File file2, File file3, String sheetName, 
+			int rowStart, int rowEnd, int colStart, int colEnd) throws Exception {
 		FileInputStream fileInputStream1 = new FileInputStream(file1);
 		FileInputStream fileInputStream2 = new FileInputStream(file2);
 		Workbook workbook1 = new HSSFWorkbook(fileInputStream1);

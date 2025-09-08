@@ -1,6 +1,5 @@
 package maven;
 
-import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,9 +9,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +17,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Stream;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -133,9 +129,8 @@ public class MonDB {
 		Bson meterFilter = Filters.in("meterNo", meterNos);
 		Bson filter = Filters.and(dateFilter, meterFilter);
 		FindIterable<Document> meterData = meterDataColl.find(filter);
-		for (Document doc: meterData) {
+		for (Document doc: meterData)
 			System.out.println(doc.toJson());
-		}
 		System.out.println(meterNos);
 	}
 

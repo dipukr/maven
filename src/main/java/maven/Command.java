@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 public class Command {
 	public static void main(final String[] args) throws Exception {
 		Runtime runtime = Runtime.getRuntime();
-		Process process = runtime.exec("cmd /c dir");
+		Process process = runtime.exec("find");
 		InputStream inputStream = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(inputStream);
 		BufferedReader reader = new BufferedReader(isr);

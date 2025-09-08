@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 public class Clean {
-	public static void main(final String[] args) {
+	public static void main(String[] args) {
 		File dir = new File("/home/dkumar/RESEARCH");
 		File[] files = dir.listFiles();
 		for (File file: files) {

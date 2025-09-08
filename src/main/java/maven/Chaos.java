@@ -24,7 +24,7 @@ public class Chaos extends JPanel {
 	private static final int W = 1920;
 	private static final int H = 1080;
 	
-	private static class Ball {
+	private class Ball {
 		private int x;
 		private int y;
 		private int r;
@@ -82,7 +82,7 @@ public class Chaos extends JPanel {
 		repaint();
 	}
 	
-	public static void main(final String[] args) {
+	public static void main(String[] args) {
 		try {
 			var frame = new JFrame();
 			frame.setVisible(true);
