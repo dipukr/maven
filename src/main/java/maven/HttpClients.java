@@ -28,6 +28,7 @@ public class HttpClients {
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(URI.create("http://localhost:80"))
 				.build();
+		
 		for (int i = 0; i < requestCount; i++) {
 			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 			String body = response.body();

@@ -12,7 +12,7 @@ import java.util.List;
 public class Hacks {
 	public void dictionaryAttack(String dictPath, String exePath) throws Exception {
 		List<String> passwords = Files.lines(Path.of(dictPath)).toList();
-		PrintWriter wr = new PrintWriter("dict_attack.log");
+		PrintWriter wr = new PrintWriter("/var/log/dict_attack.log");
 		Runtime runtime = Runtime.getRuntime();
 		for (String password: passwords) {
 			Process process = runtime.exec(exePath);

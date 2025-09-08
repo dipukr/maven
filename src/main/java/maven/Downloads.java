@@ -5,11 +5,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 
-public class Downloaders implements Runnable {
+public class Downloads implements Runnable {
 
 	private String url;
 	
-	public Downloaders(String url) {
+	public Downloads(String url) {
 		this.url = url;
 	}
 	
@@ -25,6 +25,7 @@ public class Downloaders implements Runnable {
 				if (count == -1) break;
 				fos.write(buffer, 0, count);
 			}
+			fos.close();
 		} catch (Exception e) {
 			System.out.println("ERROR: Download failed.");
 		}
@@ -32,7 +33,7 @@ public class Downloaders implements Runnable {
 	
 	public static void main(final String[] args) {
 		for (String arg: args) {
-			var downloaders = new Downloaders(arg);
+			var downloaders = new Downloads(arg);
 			Thread thread = new Thread(downloaders);
 			thread.start();
 		}

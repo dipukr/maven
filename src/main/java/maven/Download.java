@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 
-public class Downloader {
+public class Download {
 
 	private static final int MAX_BUFFER_SIZE = 1024;
 
@@ -14,7 +14,7 @@ public class Downloader {
 	private int size;
 	private int count;
 
-	public Downloader(URL url) {
+	public Download(URL url) {
 		this.url = url;
 		this.size = -1;
 		this.count = 0;
@@ -60,7 +60,7 @@ public class Downloader {
 	public static void main(String[] args) throws Exception {
 		String addr = "https://stackoverflow.com/questions/tagged/python";
 		URL url = new URL(addr);
-		Downloader downloader = new Downloader(url);
+		Download downloader = new Download(url);
 		downloader.download();
 	}
 }

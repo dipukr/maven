@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.stream.Stream;
@@ -22,18 +23,8 @@ public class Maze extends JPanel {
 	private static final int margin = 50;
 	private static final int GS = 40;
 	
-	private static Image imageMouse = null;
-	private static Image imageApple = null;
-	
-	private static final String YELLOW = "\u001B[33m";
-	private static final String PURPLE = "\u001B[35m";
-	private static final String GREEN = "\u001B[32m";
-	private static final String WHITE = "\u001B[37m";
-	private static final String BLACK = "\u001B[30m";
-	private static final String BLUE = "\u001B[34m";
-	private static final String CYAN = "\u001B[36m";
-	private static final String RESET = "\u001B[0m";
-	private static final String RED = "\u001B[31m";
+	private static Image apple = null;
+	private static Image mouse = null;
 	
 	record Point(int x, int y) {}
 	
@@ -49,8 +40,8 @@ public class Maze extends JPanel {
 		int W = GS * cols + margin;
 		int H = GS * rows + margin;
 		setPreferredSize(new Dimension(W, H));
-		imageApple = ImageIO.read(new File("resources/apple.png"));
-		imageMouse = ImageIO.read(new File("resources/mouse.png"));
+		apple = ImageIO.read(new File("resources/apple.jpg"));
+		mouse = ImageIO.read(new File("resources/mouse.png"));
 	}
 
 	public boolean isValid(int row, int col) {
@@ -63,13 +54,6 @@ public class Maze extends JPanel {
 		return maze[row][col] == 9;
 	}
 	
-	public void repaint(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {}
-		this.repaint();
-	}
-
 	public boolean hasPath(int row, int col, Deque<Point> path) {
 		if (isValid(row, col)) {
 			if (isGoal(row, col)) return true;
@@ -96,6 +80,14 @@ public class Maze extends JPanel {
 	}
 	
 	@Override
+	public void repaint(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {}
+		this.repaint();
+	}
+	
+	@Override
 	public void paint(Graphics g) {
 		var gc = (Graphics2D) g;
 		for (int i = 0; i < rows; i++) {
@@ -109,7 +101,7 @@ public class Maze extends JPanel {
 					gc.setColor(wallColor);
 					gc.fillRect(x, y, GS, GS);
 				} else if (maze[i][j] == 9) {
-					gc.drawImage(imageApple, x, y, GS, GS, this);
+					gc.drawImage(apple, x, y, GS, GS, this);
 				}
 				gc.setColor(Color.black);
 				gc.drawRect(x, y, GS, GS);
@@ -121,7 +113,7 @@ public class Maze extends JPanel {
 		for (int row = 0; row < rows; row++) {
 			for (int col = 0; col < cols; col++) {
 				int code = maze[row][col] == 0 ? 9608: 32;
-				System.out.printf("%s%c%c", GREEN, code,code);
+				System.out.printf("%s%c%c", Colors.GREEN, code, code);
 			}
 			System.out.println();
 		}
@@ -134,7 +126,7 @@ public class Maze extends JPanel {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int data[][] = {
+		int[][] data = {
 			{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 			{1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1},
 			{1,0,0,0,1,0,0,0,1,1,1,1,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
@@ -155,19 +147,10 @@ public class Maze extends JPanel {
 			{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,9,1},
 			{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 		};
-		int data2[][] = {
-				{1,1,1,1,1,1,1,1},
-				{1,0,1,0,1,0,0,1},
-				{1,0,0,0,1,1,1,1},
-				{1,0,0,0,0,0,0,1},
-				{1,0,0,0,1,1,1,1},
-				{1,0,0,0,0,0,0,1},
-				{1,0,0,0,0,0,9,1},
-				{1,1,1,1,1,1,1,1}
-			};
 		
 		var frame = new JFrame();
 		var maze = new Maze(data);
+		maze.draw();
 		
 		frame.add(maze, BorderLayout.CENTER);
 		frame.pack();
@@ -175,9 +158,9 @@ public class Maze extends JPanel {
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		var path = new LinkedList<Point>();
-		if (maze.hasPath(1, 1, path)) {
+		if (maze.hasPath(1, 1, path))
 			path.addLast(new Point(1, 1));
-		}
+		Collections.reverse(path);
 		System.out.println(path);
 		while (!path.isEmpty()) {
 			Graphics2D gc = (Graphics2D) frame.getGraphics();
@@ -185,7 +168,7 @@ public class Maze extends JPanel {
 			int x = point.y * GS + margin / 2;
 			int y = point.x * GS + margin / 2;
 			Thread.sleep(500);
-			gc.drawImage(imageMouse, x, y, GS, GS, frame);
+			gc.drawImage(mouse, x, y, GS, GS, frame);
 		}
 	}
 }

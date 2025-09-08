@@ -108,7 +108,7 @@ public class Eval {
 		for (int a = 0; a < chars.length; a++)
 			chars[a] = all[rd.nextInt(all.length)];
 		long start = System.currentTimeMillis();
-		test1(chars);
+		test0(chars);
 		long end = System.currentTimeMillis();
 		System.out.printf("Millis: %d", end - start);
 	}
