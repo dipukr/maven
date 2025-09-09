@@ -11,7 +11,6 @@ import java.util.Queue;
 public class Search {
 
 	private Map<String, List<String>> filePaths = new HashMap<>();
-	private List<String> dirs = new ArrayList<>();
 
 	public Search(List<String> dirs) {
 		for (String dir: dirs) {

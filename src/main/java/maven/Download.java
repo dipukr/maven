@@ -1,6 +1,9 @@
 package maven;
 
 import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -22,7 +25,7 @@ public class Download {
 
 	public void download() {
 		try (var file = new RandomAccessFile(getFileName(), "rw")) {
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 			connection.setRequestProperty("Range", String.format("bytes=%d-", count));
 			connection.connect();
 			this.size = connection.getContentLength();

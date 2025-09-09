@@ -20,10 +20,10 @@ public class Server {
 
 	public void start() {
 		ExecutorService executorService = Executors.newFixedThreadPool(16);
-		try (ServerSocket socket = new ServerSocket(port)) {
+		try (ServerSocket serverSocket = new ServerSocket(port)) {
 			while (true) {
 				System.out.printf("Listening at port %d.\n", 6789);
-				Socket clientSocket = socket.accept();
+				Socket clientSocket = serverSocket.accept();
 				executorService.execute(() -> handle(clientSocket));
 			}
 		} catch (Exception e) {

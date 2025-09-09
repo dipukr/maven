@@ -136,9 +136,9 @@ public class MonDB {
 
 	public static void main(final String[] args) throws Exception {
 		// 2025-05-25T18:30:00.000+00:00
-		String uri = "mongodb://sneha:Sneha%401212@3.6.233.10:27017/?authSource=nvkn";
+		String uri = "";
 		try (MongoClient mongoClient = MongoClients.create(uri)) {
-			MongoDatabase database = mongoClient.getDatabase("nvkn");
+			MongoDatabase database = mongoClient.getDatabase("samast");
 			//MongoCollection<Document> meterDetailsColl = database.getCollection("SecureMeterDetails");
 			//MongoCollection<Document> meterDataColl = database.getCollection("pnPR_VEELoadSuveyData");
 			//Set<String> meterNos = findAllMeterNos(meterDetailsColl);
