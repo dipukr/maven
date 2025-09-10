@@ -36,6 +36,7 @@ public class Sort extends JPanel {
 		return min;
 	}
 	
+	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		Graphics2D gc = (Graphics2D) g;
@@ -47,13 +48,13 @@ public class Sort extends JPanel {
 		swap(frameCount, minIndex);
 		frameCount++;
 		try {
-			Thread.sleep(400);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {}
 		if (frameCount != data.length)
 			repaint();
 	}
 	
-	public static void main(final String[] args) {
+	public static void main(String[] args) {
 		JFrame frame = new JFrame();
 		frame.setVisible(true);
 		frame.setResizable(false);

@@ -31,10 +31,10 @@ public class Downloads implements Runnable {
 		}
 	}
 	
-	public static void main(final String[] args) {
+	public static void main(String[] args) {
 		for (String arg: args) {
-			var downloaders = new Downloads(arg);
-			Thread thread = new Thread(downloaders);
+			var downloads = new Downloads(arg);
+			Thread thread = new Thread(downloads);
 			thread.start();
 		}
 	}

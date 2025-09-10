@@ -43,7 +43,7 @@ public class Tree {
 	}
 	
 	public static void main(String[] args) {
-		File root = new File("/home/rootshell/Media");
+		File root = new File("/home/dkumar/DSA");
 		var tree = new Tree();
 		tree.treeView(root, 0);
 	}

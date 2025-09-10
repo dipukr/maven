@@ -45,9 +45,4 @@ public class Server {
 			System.out.printf("ERROR: %s\n", e.getMessage());
 		}
 	}
-
-	public static void main(String[] args) throws Exception {
-		Server server = new Server(6789);
-		server.start();
-	}
 }

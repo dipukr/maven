@@ -1,6 +1,5 @@
 package maven;
 
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.Kernel;
@@ -15,7 +14,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import javax.imageio.ImageIO;
 
@@ -101,5 +104,19 @@ public class Demos {
 		ImageIO.write(blurred, "jpg", new File("output.jpg"));
 	}
 	
+	public void benchmark(long millis) throws Exception {
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://localhost:80"))
+				.build();
+		int counter = 0;
+		long start = System.currentTimeMillis();
+		while (System.currentTimeMillis() - start < millis) {
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			response.body();
+			counter += 1;
+		}
+		System.out.printf("Served %d requests in %d millis.\n", counter, millis);
+	}
 	
 }
