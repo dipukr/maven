@@ -26,7 +26,7 @@ public class Download {
 			connection.setRequestProperty("Range", String.format("bytes=%d-", count));
 			connection.connect();
 			this.size = connection.getContentLength();
-			if (size < 1) Error.fatal("Fatal error.");
+			if (size < 1) Error.error("Something is wrong.");
 			file.seek(count);
 			InputStream stream = connection.getInputStream();
 			byte[] buffer = new byte[MAX_BUFFER_SIZE];
@@ -37,7 +37,7 @@ public class Download {
 				this.count += read;
 			}
 		} catch (IOException e) {
-			Error.fatal("Could not download file " + getFileName());
+			Error.error("Could not download file " + getFileName());
 		}
 	}
 	

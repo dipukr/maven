@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 public class Maze extends JPanel {
 	
 	private static final Color wallColor = new Color(39,40,34);
+	private static final long serialVersionUID = 1;
 	private static final int margin = 50;
 	private static final int GS = 40;
 	
