@@ -2,7 +2,9 @@ package maven;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 
 public class Client {
@@ -18,35 +20,18 @@ public class Client {
 	public String connectSend(String message) {
 		String response = null;
 		try {
-			Socket socket = new Socket(host, port);
-			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
-			outToServer.writeBytes(message+"\n");
-			response = inFromServer.readLine();
-			socket.close();
+			Socket serverSocket = new Socket(host, port);
+			InputStream inputStream = serverSocket.getInputStream();
+			OutputStream outputStream = serverSocket.getOutputStream();
+			InputStreamReader streamReader = new InputStreamReader(inputStream);
+			BufferedReader fromServer = new BufferedReader(streamReader);
+			DataOutputStream toServer = new DataOutputStream(outputStream);
+			toServer.writeBytes(message + '\n');
+			response = fromServer.readLine();
+			serverSocket.close();
 		} catch (Exception e) {
 			System.out.printf("ERROR: %s.\n", e.getMessage());
-			System.exit(0);
 		}
 		return response;
-	}
-
-	public static void main(String[] args) {
-		// if (args.length != 1) return;
-		final int N = 1000;
-		// for (int i = 1; i <= N; i++) {
-		//	Client client = new Client("127.0.0.1", 6789);
-		//	System.out.println(client.connectSend(args[0]+i));
-		//}
-		Runnable task = () -> {
-			Client client = new Client("127.0.0.1", 6789);
-			System.out.println(client.connectSend(Thread.currentThread().getName()));
-		};
-		for (int a = 0; a < N; a++) {
-			Thread thread = new Thread(task);
-			thread.setName("thread_count_"+a);
-			thread.start();
-		}
-		System.out.println("Terminated.");
 	}
 } 

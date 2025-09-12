@@ -87,6 +87,23 @@ public class Demos {
 		fos.close();
 	}
 	
+	public void execute(String command) throws Exception {
+		Runtime runtime = Runtime.getRuntime();
+		Process process = runtime.exec(command);
+		InputStream inputStream = process.getInputStream();
+		InputStreamReader isr = new InputStreamReader(inputStream);
+		BufferedReader reader = new BufferedReader(isr);
+		StringBuilder data = new StringBuilder();
+		while (true) {
+			String line = reader.readLine();
+			if (line == null) break;
+			data.append(line).append('\n');
+		}
+		int retval = process.waitFor();
+		if (retval == 0)
+			System.out.println(data);
+	}
+	
 	public void convolution(File file) throws Exception {
 		BufferedImage input = ImageIO.read(file);
 		float[] matrix = {
@@ -96,10 +113,8 @@ public class Demos {
 			4f/273, 16f/273, 26f/273, 16f/273, 4f/273,
 			1f/273, 4f/273, 7f/273, 4f/273, 1f/273
 		};
-
 		Kernel kernel = new Kernel(5, 5, matrix); // Gaussian kernel
 		ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-
 		BufferedImage blurred = op.filter(input, null);
 		ImageIO.write(blurred, "jpg", new File("output.jpg"));
 	}

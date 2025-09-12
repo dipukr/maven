@@ -41,10 +41,4 @@ public class Tree {
 			if (i == (files.length - 1)) levels.add(level);
 		}
 	}
-	
-	public static void main(String[] args) {
-		File root = new File("/home/dkumar/DSA");
-		var tree = new Tree();
-		tree.treeView(root, 0);
-	}
 }
