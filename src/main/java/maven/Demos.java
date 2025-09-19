@@ -124,10 +124,11 @@ public class Demos {
 		HttpRequest request = HttpRequest.newBuilder()
 				.uri(URI.create("http://localhost:80"))
 				.build();
+		var bodyHandler = HttpResponse.BodyHandlers.ofString();
 		int counter = 0;
 		long start = System.currentTimeMillis();
 		while (System.currentTimeMillis() - start < millis) {
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response = client.send(request, bodyHandler);
 			response.body();
 			counter += 1;
 		}
