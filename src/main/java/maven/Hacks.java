@@ -1,10 +1,8 @@
 package maven;
 
-import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -12,7 +10,7 @@ import java.util.List;
 public class Hacks {
 	public void dictionaryAttack(String dictPath, String exePath) throws Exception {
 		List<String> passwords = Files.lines(Path.of(dictPath)).toList();
-		PrintWriter wr = new PrintWriter("/var/log/dict_attack.log");
+		var writer = new FileWriter("/home/dkumar/dict_attack.log");
 		Runtime runtime = Runtime.getRuntime();
 		for (String password: passwords) {
 			Process process = runtime.exec(exePath);
@@ -20,22 +18,21 @@ public class Hacks {
 			OutputStream outputStream = process.getOutputStream();
 			outputStream.write(password.getBytes());
 			outputStream.close();
-			InputStreamReader isr = new InputStreamReader(inputStream);
-			BufferedReader reader = new BufferedReader(isr);
-			StringBuilder data = new StringBuilder();
-			while (true) {
-				String line = reader.readLine();
-				if (line == null) break;
-				data.append(line);
-			}
-			int retval = process.waitFor();
-			reader.close();
-			isr.close();
+			byte[] data = inputStream.readAllBytes();
 			inputStream.close();
-			if (retval == 0)
-				wr.println(password + ": " + data.toString());
+			process.waitFor();
+			writer.write(password + ": " + new String(data));
 		}
-		wr.flush();
-		wr.close();
+		writer.flush();
+		writer.close();
+	}
+	
+	public static void main(String[] args) throws Exception {
+		long start = System.currentTimeMillis();
+		String exePath = "/home/dkumar/collection/auth";
+		String dictPath = "/home/dkumar/Data/words";	
+		var algo = new Hacks();
+		algo.dictionaryAttack(dictPath, exePath);
+		System.out.println(System.currentTimeMillis() - start);
 	}
 }

@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class Clean {
 	public static void main(String[] args) {
-		File dir = new File("/home/dkumar/RESEARCH");
+		File dir = new File(".");
 		File[] files = dir.listFiles();
 		for (File file: files) {
 			String fileName = file.getName();
