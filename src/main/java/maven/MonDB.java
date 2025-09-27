@@ -1,7 +1,6 @@
 package maven;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
@@ -45,8 +44,8 @@ public class MonDB {
 		String uri = "mongodb://samast_user:Samast%401212@192.168.101.24:27017/?authSource=samast";
 		try (MongoClient mongoClient = MongoClients.create(uri)) {
 			MongoDatabase database = mongoClient.getDatabase("samast");
-			MongoCollection<Document> meterDetailsColl = database.getCollection("SecureMeterDetails");
-			MongoCollection<Document> meterDataColl = database.getCollection("pnPR_VEELoadSuveyData");
+			var meterDetailsColl = database.getCollection("SecureMeterDetails");
+			var meterDataColl = database.getCollection("pnPR_VEELoadSuveyData");
 			Set<String> meterNos = findAllMeterNos(meterDetailsColl);
 		}
 	}
