@@ -2,6 +2,8 @@ package maven;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -146,232 +148,166 @@ enum Expression {
 	SubAssign("Expression *left;Expression *right"),
 	Assignment("Expression *left;Expression *right");
 	
-	private final String data;
-	
-	Expression(String data) {
-		this.data = data;
-	}
-	
-	public String getData() {
-		return data;
-	}
+	final String data;
+	Expression(String data) {this.data = data;}
+	public String getData() {return data;}
 }
 
 enum Statement {
-	ClassDecl("List<Statement> variables;List<Statement> functions;"),
-	Function("String name;List<String> params;List<Statement> statements;"),
-	Block("List<Statement> statements;"),
-	Var("String name;Expression value;"),
-	Val("String name;Expression value;"),
-	If("Expression codition;Statement statement0;Statement statement1;"),
-	While("Expression codition;Statement statement;"),
-	Foreach("String name;String target"),
-	Break(""),
-	Return("Expression value"),
-	Expression("Expression expression");
+	ClassStatement("List<Statement*> *variables;List<Statement*> *functions"),
+	FunctionStatement("String name;List<String> *params;List<Statement*> *statements"),
+	BlockStatement("List<Statement*> *statements"),
+	VarStatement("String name;Expression *value"),
+	ValStatement("String name;Expression *value"),
+	IfStatement("Expression *condition;Statement *statement0;Statement *statement1"),
+	WhileStatement("Expression *condition;Statement *statement"),
+	ForeachStatement("String name;String target"),
+	BreakStatement("uint pos"),
+	ReturnStatement("Expression *value"),
+	ExpressionStatement("Expression *expression");
 	
-	private final String data;
-	
-	Statement(String data) {
-		this.data = data;
-	}
-	
-	public String getData() {
-		return data;
-	}
+	final String data;
+	Statement(String data) {this.data = data;}
+	public String getData() {return data;}
 }
 
 class ClassData {
 	public String name;
 	public String data;
-	public static ClassData of(String name, String data) {
-		var classData = new ClassData();
+	public String kind;
+	public static ClassData of(String name, String data, String kind) {
+		ClassData classData = new ClassData();
 		classData.name = name;
 		classData.data = data;
+		classData.kind = kind;
 		return classData;
 	}
 }
 
 public class Neem {
-	public void writeFields(FileWriter writer, ClassData data) throws Exception {
+	public void writeClassDecl(PrintWriter writer, ClassData data) throws Exception {
+		
+	}
+	public void writeFields(PrintWriter writer, String kind, ClassData data) throws Exception {
 		String[] fields = data.data.split(";");
-		writer.append("class ").append(data.name).append(": public")
-			.append(" Expression").append("\n{\n");
+		writer.printf("class %s: public %s\n{\n", data.name, kind);
 		for (String field: fields) {
 			String[] strs = field.split(" ");
-			writer.append('\t').append(strs[0]).append(' ');
+			writer.printf("\t%s ", strs[0]);
 			if (strs[1].charAt(0) == '*')
-				  writer.append("*m_").append(strs[1].substring(1)).append(";\n");
-			else writer.append("m_").append(strs[1]).append(";\n");
+				writer.printf("*m_%s;\n", strs[1].substring(1));	
+			else writer.printf("m_%s;\n", strs[1]);
 		}
-	}
-	public void writeConstructorDecl(FileWriter writer, ClassData data) throws Exception {
-		writer.append('\t').append(data.name).append("(");
+	}	
+	public void writeConstructorDecl(PrintWriter writer, ClassData data) throws Exception {
+		writer.printf("\t%s(", data.name);
 		String[] fields = data.data.split(";");
 		for (int i = 0; i < fields.length; i++) {
 			if (i > 0) writer.append(", ");
-			writer.append(fields[i]).append(", uint pos");
+			writer.printf("%s", fields[i]);
 		}
-		writer.append(");\n");
+		writer.printf(", uint pos);\n");
 	}
-	public void writeConstructorDefinition(FileWriter writer, ClassData data) throws Exception {
-		writer.append('\t').append(data.name).append("(");
+	public void writeConstructor(PrintWriter writer, String kind, ClassData data) throws Exception {
 		String[] fields = data.data.split(";");
+		writer.printf("%s::%s(", data.name, data.name);
 		for (int i = 0; i < fields.length; i++) {
-			if (i > 0) writer.append(", ");
-			writer.append(fields[i]).append(", uint pos");
+			if (i > 0) writer.printf(", ");
+			writer.printf(fields[i]);
 		}
-		writer.append(");\n");
+		writer.printf(", uint pos) : ");
+		for (int i = 0; i < fields.length; i++) {
+			String field = fields[i];
+			String[] strs = field.split(" ");
+			if (i > 0) writer.printf(", ");
+			String name = strs[1].charAt(0) == '*' ? strs[1].substring(1) : strs[1];
+			writer.printf("m_%s(%s)", name, name);
+		}
+		writer.printf(", %s(pos) {}\n", kind);
 	}
-	public void writeGetters(FileWriter writer, ClassData data) throws Exception {
-		writer.append("public:\n");
+	public void writeGettersDecl(PrintWriter writer, ClassData data) throws Exception {
 		String[] fields = data.data.split(";");
 		for (String field: fields) {
 			String[] strs = field.split(" ");
-			writer.append('\t').append(strs[0]).append(' ')
-				.append(strs[1]).append("() const;\n");
-		}
-		writer.append("\tvoid accept(ExpressionVisitor *visitor);\n");
-		writer.append("};\n");
-	}
-	public void writeAcceptDecl(FileWriter writer, String name) throws Exception {
-		writer.append("\tvoid accept(").append(name);
-		writer.append(" *visitor);");
-	}
-	public void writeAcceptDefn(FileWriter writer, String name) throws Exception {
-		writer.append("\tvoid accept(").append(name);
-		writer.append(" *visitor);");
-	}
-	public void writeVisitor(FileWriter writer, String name, List<String> classNames) throws Exception {
-		writer.append("struct ExpressionVisitor {\n");
-		for (String className: classNames) {
-			writer.append("\tvirtual void visit(");
-			writer.append(className);
-			writer.append(" *expression) = 0;\n");
-		}
-		writer.append("};\n");
-	}
-	
-	public void writeExpression(FileWriter writer, List<ClassData> classDatas) throws Exception {
-		writer.append("struct ExpressionVisitor;\n");
-		writer.append("struct Expression {\n");
-		writer.append("\tuint pos;\n");
-		writer.append("\tExpression(int pos) : pos(pos) {}\n");
-		writer.append("virtual void accept(ExpressionVisitor *visitor) = 0;\n};\n");
-		for (Expression expression: Expression.values()) {
-			String name = expression.name();
-			String data = expression.getData();
-			String[] fields = data.split(";");
-			writer.append("class ").append(name).append(": public")
-				.append(" Expression").append("\n{\n");
-			for (String field: fields) {
-				String[] strs = field.split(" ");
-				writer.append('\t').append(strs[0]).append(' ');
-				if (strs[1].charAt(0) == '*')
-					  writer.append("*m_").append(strs[1].substring(1)).append(";\n");
-				else writer.append("m_").append(strs[1]).append(";\n");
-			}
-			writer.append("public:\n");
-			writer.append('\t').append(name).append("(");
-			for (int i = 0; i < fields.length; i++) {
-				if (i > 0) writer.append(", ");
-				writer.append(fields[i]).append(", uint pos");
-			}
-			writer.append(");\n");
-			for (String field: fields) {
-				String[] strs = field.split(" ");
-				writer.append('\t').append(strs[0]).append(' ')
-					.append(strs[1]).append("() const;\n");
-			}
-			writer.append("\tvoid accept(ExpressionVisitor *visitor);\n");
-			writer.append("};\n");
-		}
-		writer.append("struct ExpressionVisitor {\n");
-		for (Expression expression: Expression.values()) {
-			writer.append("\tvirtual void visit(");
-			writer.append(expression.name());
-			writer.append(" *expression) = 0;\n");
-		}
-		writer.append("};\n");
-		for (Expression expression: Expression.values()) {
-			String name = expression.name();
-			String data = expression.getData();
-			String[] fields = data.split(";");
-			writer.append(name).append("::").append(name).append("(");
-			for (int i = 0; i < fields.length; i++) {
-				if (i > 0) writer.append(", ");
-				writer.append(fields[i]);
-			}
-			writer.append(", uint pos) : ");
-			for (int i = 0; i < fields.length; i++) {
-				String field = fields[i];
-				String[] strs = field.split(" ");
-				if (i > 0) writer.append(", ");
-				if (strs[1].charAt(0) == '*')
-					writer.append("m_").append(strs[1].substring(1)).append('(')
-						.append(strs[1].substring(1)).append(')');
-				else writer.append("m_").append(strs[1]).append('(')
-					.append(strs[1]).append(')');
-			}
-			writer.append(", Expression(pos) {}\n");
-		}
-		for (Expression expression: Expression.values()) {
-			String name = expression.name();
-			writer.append("void ").append(name).append("::accept(ExpressionVisitor *visitor)")
-				.append(" {visitor->visit(this);}").append("\n");
-		}
-		for (Expression expression: Expression.values()) {
-			String name = expression.name();
-			String data = expression.getData();
-			String[] fields = data.split(";");
-			for (String field: fields) {
-				String[] strs = field.split(" ");
-				if (strs[1].charAt(0) == '*')
-					writer.append(strs[0]).append("* ").append(name).append("::")
-						.append(strs[1].substring(1)).append("() const {")
-						.append("return m_").append(strs[1].substring(1)).append(";}\n");
-				else writer.append(strs[0]).append(" ").append(name).append("::")
-						.append(strs[1]).append("() const {")
-						.append("return m_").append(strs[1]).append(";}\n");
-			}
+			if (strs[1].charAt(0) == '*')
+				writer.printf("\t%s* %s() const;\n", strs[0], strs[1].substring(1));
+			else writer.printf("\t%s %s() const;\n", strs[0], strs[1]);
 		}
 	}
-	public static void writeStatement(FileWriter writer) throws Exception {
-		for (Statement statement: Statement.values()) {
-			String name = statement.name();
-			String data = statement.getData();
-			String[] fields = data.split(";");
-			writer.append("class ").append(name).append("{\n");
-			for (String field: fields) {
-				writer.append('\t').append(field).append(';');
-				writer.append('\n');
-				//String[] strs = field.split(" ");
-			}
-			writer.append("public");
-			writer.append("};\n");
+	public void writeGetters(PrintWriter writer, ClassData data) throws Exception {
+		String[] fields = data.data.split(";");
+		for (String field: fields) {
+			String[] strs = field.split(" ");
+			if (strs[1].charAt(0) == '*')
+				writer.printf("%s* %s::%s() const {return m_%s;}\n", strs[0], data.name, strs[1].substring(1), strs[1].substring(1));
+			else writer.printf("%s %s::%s() const {return m_%s;}\n", strs[0], data.name, strs[1], strs[1]);
 		}
 	}
-	public static void writeVisitor(FileWriter writer, List<String> names, String arg) throws Exception {
-		writer.append("struct Visitor {\n");
-		for (String name: names) {
-			writer.append("\tvirtual void visit(");
-			writer.append(name);
-			writer.append(" *");
-			writer.append(arg);
-			writer.append(") = 0;\n");
+	public void writeAcceptDecl(PrintWriter writer, String kind) throws Exception {
+		writer.printf("\tvoid accept(%sVisitor *visitor);\n", kind);
+	}
+	public void writeAccept(PrintWriter writer, String kind, String name) throws Exception {
+		writer.printf("void %s::accept(%sVisitor *visitor) {visitor->visit(this);}\n", name, kind);
+	}
+	public void writeVisitor(PrintWriter writer, List<ClassData> classDatas) throws Exception {
+		writer.printf("struct Visitor {\n");
+		for (ClassData classData: classDatas)
+			writer.printf("\tvirtual void visit(%s *%s) = 0;\n", classData.name, classData.kind.toLowerCase());
+		writer.printf("};\n");
+	}
+	public void writeAll(PrintWriter writer, String kind, List<ClassData> classDatas) throws Exception {
+		writer.printf("struct %sVisitor;\n\n", kind);
+		writer.printf("struct %s {\n", kind);
+		writer.printf("\tuint pos;\n");
+		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
+		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
+		writer.printf("};\n\n");
+		for (ClassData classData: classDatas) {
+			writeFields(writer, kind, classData);
+			writer.printf("public:\n");
+			writeConstructorDecl(writer, classData);
+			writeGettersDecl(writer, classData);
+			writeAcceptDecl(writer, kind);
+			writer.printf("};\n\n");
 		}
-		writer.append("};\n");
+		writer.printf("\n");
+		for (ClassData classData: classDatas)
+			writeConstructor(writer, kind, classData);
+		writer.printf("\n");
+		for (ClassData classData: classDatas)
+			writeGetters(writer, classData);
+			writer.printf("\n");
+		for (ClassData classData: classDatas)
+			writeAccept(writer, kind, classData.name);
+			writer.printf("\n");
+	}
+	public void writeVisitorImpl(PrintWriter writer, List<ClassData> expressions, String name, List<ClassData> statements) throws Exception {
+		writer.printf("class %s: public Visitor, StatementVisitor {\n", name);
+		
+	}
+	public boolean notEmpty(String[] fields) {
+		if (fields.length == 1 && fields[0].isEmpty()) return false;
+		return true;
 	}
 	public static void main(String[] args) throws Exception {
 		var neem = new Neem();
 		Token[] tokens = Token.values();
 		Opcode[] opcodes = Opcode.values();
-		Expression[] expressions = Expression.values();
-		Statement[] statements = Statement.values();
 		File file = new File("output.data");
-		FileWriter writer = new FileWriter(file);
-		Function<Expression, ClassData> mapper = (a) -> ClassData.of(a.name(), a.getData());
-		neem.writeExpression(writer, Stream.of(expressions).map(mapper).toList());
+		FileWriter fileWriter = new FileWriter(file);
+		PrintWriter writer = new PrintWriter(fileWriter, true);
+		Function<Expression, ClassData> emapper = (a) -> ClassData.of(a.name(), a.getData(), "Expression");
+		Function<Statement, ClassData> smapper = (a) -> ClassData.of(a.name(), a.getData(), "Statement");
+		List<ClassData> expressions = Stream.of(Expression.values()).map(emapper).toList();
+		List<ClassData> statements = Stream.of(Statement.values()).map(smapper).toList();
+		List<ClassData> ast = new ArrayList<>();
+		ast.addAll(expressions);
+		ast.addAll(statements);
+		
+		
+		//neem.writeAll(writer, "Expression", expressions);
+		neem.writeAll(writer, "Statement", statements);
+		//neem.writeVisitorImpl(writer, expressions, statements);
 		writer.flush();
 		writer.close();
 	}
