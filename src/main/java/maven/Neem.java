@@ -3,6 +3,7 @@ package maven;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 enum Opcode {
@@ -192,6 +193,18 @@ class ClassData {
 }
 
 public class Neem {
+	public void writeFields(FileWriter writer, ClassData data) throws Exception {
+		String[] fields = data.data.split(";");
+		writer.append("class ").append(data.name).append(": public")
+			.append(" Expression").append("\n{\n");
+		for (String field: fields) {
+			String[] strs = field.split(" ");
+			writer.append('\t').append(strs[0]).append(' ');
+			if (strs[1].charAt(0) == '*')
+				  writer.append("*m_").append(strs[1].substring(1)).append(";\n");
+			else writer.append("m_").append(strs[1]).append(";\n");
+		}
+	}
 	public void writeConstructorDecl(FileWriter writer, ClassData data) throws Exception {
 		writer.append('\t').append(data.name).append("(");
 		String[] fields = data.data.split(";");
@@ -210,7 +223,36 @@ public class Neem {
 		}
 		writer.append(");\n");
 	}
-	public static void writeExpression(FileWriter writer) throws Exception {
+	public void writeGetters(FileWriter writer, ClassData data) throws Exception {
+		writer.append("public:\n");
+		String[] fields = data.data.split(";");
+		for (String field: fields) {
+			String[] strs = field.split(" ");
+			writer.append('\t').append(strs[0]).append(' ')
+				.append(strs[1]).append("() const;\n");
+		}
+		writer.append("\tvoid accept(ExpressionVisitor *visitor);\n");
+		writer.append("};\n");
+	}
+	public void writeAcceptDecl(FileWriter writer, String name) throws Exception {
+		writer.append("\tvoid accept(").append(name);
+		writer.append(" *visitor);");
+	}
+	public void writeAcceptDefn(FileWriter writer, String name) throws Exception {
+		writer.append("\tvoid accept(").append(name);
+		writer.append(" *visitor);");
+	}
+	public void writeVisitor(FileWriter writer, String name, List<String> classNames) throws Exception {
+		writer.append("struct ExpressionVisitor {\n");
+		for (String className: classNames) {
+			writer.append("\tvirtual void visit(");
+			writer.append(className);
+			writer.append(" *expression) = 0;\n");
+		}
+		writer.append("};\n");
+	}
+	
+	public void writeExpression(FileWriter writer, List<ClassData> classDatas) throws Exception {
 		writer.append("struct ExpressionVisitor;\n");
 		writer.append("struct Expression {\n");
 		writer.append("\tuint pos;\n");
@@ -321,15 +363,15 @@ public class Neem {
 		writer.append("};\n");
 	}
 	public static void main(String[] args) throws Exception {
+		var neem = new Neem();
 		Token[] tokens = Token.values();
 		Opcode[] opcodes = Opcode.values();
 		Expression[] expressions = Expression.values();
 		Statement[] statements = Statement.values();
 		File file = new File("output.data");
 		FileWriter writer = new FileWriter(file);
-		//writeVisitor(writer, Stream.of(expressions).map(elem -> elem.name()).toList(), "expression");
-		//writeVisitor(writer, Stream.of(statements).map(elem -> elem.name()).toList(), "statement");
-		writeExpression(writer);
+		Function<Expression, ClassData> mapper = (a) -> ClassData.of(a.name(), a.getData());
+		neem.writeExpression(writer, Stream.of(expressions).map(mapper).toList());
 		writer.flush();
 		writer.close();
 	}
