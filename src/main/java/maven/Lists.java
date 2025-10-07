@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-public class List {
+public class Lists {
 	public static void main(String[] args) throws Exception {
 		File root = null;
 		if (args.length == 0) root = new File(".");
