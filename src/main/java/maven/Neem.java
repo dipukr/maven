@@ -180,7 +180,36 @@ enum Statement {
 	}
 }
 
+class ClassData {
+	public String name;
+	public String data;
+	public static ClassData of(String name, String data) {
+		var classData = new ClassData();
+		classData.name = name;
+		classData.data = data;
+		return classData;
+	}
+}
+
 public class Neem {
+	public void writeConstructorDecl(FileWriter writer, ClassData data) throws Exception {
+		writer.append('\t').append(data.name).append("(");
+		String[] fields = data.data.split(";");
+		for (int i = 0; i < fields.length; i++) {
+			if (i > 0) writer.append(", ");
+			writer.append(fields[i]).append(", uint pos");
+		}
+		writer.append(");\n");
+	}
+	public void writeConstructorDefinition(FileWriter writer, ClassData data) throws Exception {
+		writer.append('\t').append(data.name).append("(");
+		String[] fields = data.data.split(";");
+		for (int i = 0; i < fields.length; i++) {
+			if (i > 0) writer.append(", ");
+			writer.append(fields[i]).append(", uint pos");
+		}
+		writer.append(");\n");
+	}
 	public static void writeExpression(FileWriter writer) throws Exception {
 		writer.append("struct ExpressionVisitor;\n");
 		writer.append("struct Expression {\n");
