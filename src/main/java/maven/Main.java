@@ -1,10 +1,8 @@
 package maven;
 
-import java.io.File;
-
 public class Main {
-	public static void main(String[] args) throws Exception {
-		String[] ss = "".split(";");
-		System.out.println(ss[0].length());
+	public static void main(String[] args) {
+		System.out.println("hello");
+		throw new RuntimeException();
 	}
 }

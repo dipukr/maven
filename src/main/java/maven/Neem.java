@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -162,7 +163,7 @@ enum Statement {
 	IfStatement("Expression *condition;Statement *statement0;Statement *statement1"),
 	WhileStatement("Expression *condition;Statement *statement"),
 	ForeachStatement("String name;String target"),
-	BreakStatement("uint pos"),
+	BreakStatement(""),
 	ReturnStatement("Expression *value"),
 	ExpressionStatement("Expression *expression");
 	
@@ -174,180 +175,158 @@ enum Statement {
 class Metadata {
 	public String name;
 	public String data;
-	public static Metadata of(String name, String data) {
+	public String kind;
+	public static Metadata of(String name, String data, String kind) {
 		Metadata metadata = new Metadata();
 		metadata.name = name;
 		metadata.data = data;
+		metadata.kind = kind;
 		return metadata;
 	}
 }
 
 public class Neem {
+	
+	private final String EXPR = "Expression";
+	private final String STMT = "Statement";
+	private Function<Expression, Metadata> emapper = (a) -> Metadata.of(a.name(), a.getData(), EXPR);
+	private Function<Statement, Metadata> smapper = (a) -> Metadata.of(a.name(), a.getData(), STMT);
+	private List<Metadata> expressions = Stream.of(Expression.values()).map(emapper).toList();
+	private List<Metadata> statements = Stream.of(Statement.values()).map(smapper).toList();
+	
 	public void writeAstData(PrintWriter writer) throws Exception {
-		Function<Expression, Metadata> emapper = (a) -> Metadata.of(a.name(), a.getData());
-		Function<Statement, Metadata> smapper = (a) -> Metadata.of(a.name(), a.getData());
-		List<Metadata> expressions = Stream.of(Expression.values()).map(emapper).toList();
-		List<Metadata> statements = Stream.of(Statement.values()).map(smapper).toList();
-		List<Metadata> ast = new ArrayList<>();
-		ast.addAll(expressions);
-		ast.addAll(statements);
 		writer.printf("struct Visitor;\n\n");
-		writeClassDecls(writer, expressions, "Expression");
-		writeClassDecls(writer, statements, "Statement");
-		
-		
+		writeClassDecls(writer, expressions);
+		writeClassDecls(writer, statements);
+		writeVisitor(writer);
+		writeClassDefs(writer, expressions);
+		writeClassDefs(writer, statements);
 	}
-	public void writeClassDecls(PrintWriter writer, List<Metadata> classDatas, String kind) throws Exception {
+	public void writeClassDecls(PrintWriter writer, List<Metadata> metadatas) throws Exception {
+		final String kind = metadatas.get(0).kind;
 		writer.printf("struct %s {\n", kind);
 		writer.printf("\tuint pos;\n");
 		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
-		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
+		writer.printf("\tvirtual void accept(Visitor *visitor) = 0;\n");
 		writer.printf("};\n\n");
-		for (Metadata data: classDatas) {
-			writer.printf("class %s: public %s\n{\n", data.name, kind);
-			writeFields(writer, kind, data);
+		for (Metadata metadata: metadatas) {
+			writer.printf("class %s: public %s\n{\n", metadata.name, kind);
+			writeFields(writer, metadata);
 			writer.printf("public:\n");
-			writeConstructorDecl(writer, data);
-			writeGettersDecl(writer, data);
-			writeAcceptDecl(writer, kind);
+			writeConstructorDecl(writer, metadata);
+			writeGettersDecl(writer, metadata);
+			writeAcceptDecl(writer);
 			writer.printf("};\n\n");
 		}
 	}
-	public void writeAll(PrintWriter writer, String kind, List<Metadata> classDatas) throws Exception {
-		writer.printf("struct %sVisitor;\n\n", kind);
-		writer.printf("struct %s {\n", kind);
-		writer.printf("\tuint pos;\n");
-		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
-		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
-		writer.printf("};\n\n");
-		for (Metadata classData: classDatas) {
-			writeFields(writer, kind, classData);
-			writer.printf("public:\n");
-			writeConstructorDecl(writer, classData);
-			writeGettersDecl(writer, classData);
-			writeAcceptDecl(writer, kind);
-			writer.printf("};\n\n");
-		}
+	public void writeClassDefs(PrintWriter writer, List<Metadata> metadatas) throws Exception {
+		for (Metadata metadata: metadatas)
+			writeConstructor(writer, metadata);
 		writer.printf("\n");
-		for (Metadata classData: classDatas)
-			writeConstructor(writer, kind, classData);
-		writer.printf("\n");
-		for (Metadata classData: classDatas)
-			writeGetters(writer, classData);
+		for (Metadata metadata: metadatas)
+			writeGetters(writer, metadata);
 			writer.printf("\n");
-		for (Metadata classData: classDatas)
-			writeAccept(writer, kind, classData.name);
+		for (Metadata metadata: metadatas)
+			writeAccept(writer, metadata.name);
 			writer.printf("\n");
 	}
-	public void writeClassDecl(PrintWriter writer, Metadata data) throws Exception {
-		writer.printf("struct Visitor;\n\n", data.kind);
-		writer.printf("struct %s {\n", kind);
-		writer.printf("\tuint pos;\n");
-		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
-		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
-		writer.printf("};\n\n");
-		for (Metadata classData: classDatas) {
-			writeFields(writer, kind, classData);
-			writer.printf("public:\n");
-			writeConstructorDecl(writer, classData);
-			writeGettersDecl(writer, classData);
-			writeAcceptDecl(writer, kind);
-			writer.printf("};\n\n");
-		}
-	}
-	public void writeFields(PrintWriter writer, String kind, Metadata data) throws Exception {
+	public void writeFields(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
-		for (String field: fields) {
-			String[] strs = field.split(" ");
-			writer.printf("\t%s ", strs[0]);
-			if (strs[1].charAt(0) == '*')
-				writer.printf("*m_%s;\n", strs[1].substring(1));	
-			else writer.printf("m_%s;\n", strs[1]);
+		if (notEmpty(fields)) {
+			for (String field: fields) {
+				String[] strs = field.split(" ");
+				writer.printf("\t%s ", strs[0]);
+				if (strs[1].charAt(0) == '*')
+					writer.printf("*m_%s;\n", strs[1].substring(1));
+				else writer.printf("m_%s;\n", strs[1]);
+			}
 		}
 	}	
 	public void writeConstructorDecl(PrintWriter writer, Metadata data) throws Exception {
 		writer.printf("\t%s(", data.name);
 		String[] fields = data.data.split(";");
-		for (int i = 0; i < fields.length; i++) {
-			if (i > 0) writer.append(", ");
-			writer.printf("%s", fields[i]);
+		if (notEmpty(fields)) {
+			for (int i = 0; i < fields.length; i++) {
+				writer.printf("%s, ", fields[i]);
+			}
 		}
-		writer.printf(", uint pos);\n");
+		writer.printf("uint pos);\n");
 	}
-	public void writeConstructor(PrintWriter writer, String kind, Metadata data) throws Exception {
-		String[] fields = data.data.split(";");
-		writer.printf("%s::%s(", data.name, data.name);
-		for (int i = 0; i < fields.length; i++) {
-			if (i > 0) writer.printf(", ");
-			writer.printf(fields[i]);
+	public void writeConstructor(PrintWriter writer, Metadata metadata) throws Exception {
+		writer.printf("%s::%s(", metadata.name, metadata.name);
+		String[] fields = metadata.data.split(";");
+		if (notEmpty(fields)) {
+			for (int i = 0; i < fields.length; i++) {
+				writer.printf(fields[i]);
+				writer.printf(", ");
+			}
 		}
-		writer.printf(", uint pos) : ");
-		for (int i = 0; i < fields.length; i++) {
-			String field = fields[i];
-			String[] strs = field.split(" ");
-			if (i > 0) writer.printf(", ");
-			String name = strs[1].charAt(0) == '*' ? strs[1].substring(1) : strs[1];
-			writer.printf("m_%s(%s)", name, name);
+		writer.printf("uint pos) : ");
+		if (notEmpty(fields)) {
+			for (int i = 0; i < fields.length; i++) {
+				String field = fields[i];
+				String[] strs = field.split(" ");
+				String name = strs[1].charAt(0) == '*' ? strs[1].substring(1) : strs[1];
+				writer.printf("m_%s(%s), ", name, name);
+			}
 		}
-		writer.printf(", %s(pos) {}\n", kind);
+		writer.printf("%s(pos) {}\n", metadata.kind);
 	}
 	public void writeGettersDecl(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
-		for (String field: fields) {
-			String[] strs = field.split(" ");
-			if (strs[1].charAt(0) == '*')
-				writer.printf("\t%s* %s() const;\n", strs[0], strs[1].substring(1));
-			else writer.printf("\t%s %s() const;\n", strs[0], strs[1]);
+		if (notEmpty(fields)) {
+			for (String field: fields) {
+				String[] strs = field.split(" ");
+				if (strs[1].charAt(0) == '*')
+					writer.printf("\t%s* %s() const;\n", strs[0], strs[1].substring(1));
+				else writer.printf("\t%s %s() const;\n", strs[0], strs[1]);
+			}
 		}
 	}
 	public void writeGetters(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
-		for (String field: fields) {
-			String[] strs = field.split(" ");
-			if (strs[1].charAt(0) == '*')
-				writer.printf("%s* %s::%s() const {return m_%s;}\n", strs[0], data.name, strs[1].substring(1), strs[1].substring(1));
-			else writer.printf("%s %s::%s() const {return m_%s;}\n", strs[0], data.name, strs[1], strs[1]);
+		if (notEmpty(fields)) {
+			for (String field: fields) {
+				String[] strs = field.split(" ");
+				if (strs[1].charAt(0) == '*')
+					writer.printf("%s* %s::%s() const {return m_%s;}\n", strs[0], data.name, strs[1].substring(1), strs[1].substring(1));
+				else writer.printf("%s %s::%s() const {return m_%s;}\n", strs[0], data.name, strs[1], strs[1]);
+			}
 		}
 	}
-	public void writeAcceptDecl(PrintWriter writer, String kind) throws Exception {
-		writer.printf("\tvoid accept(%sVisitor *visitor);\n", kind);
+	public void writeAcceptDecl(PrintWriter writer) throws Exception {
+		writer.printf("\tvoid accept(Visitor *visitor);\n");
 	}
-	public void writeAccept(PrintWriter writer, String kind, String name) throws Exception {
-		writer.printf("void %s::accept(%sVisitor *visitor) {visitor->visit(this);}\n", name, kind);
+	public void writeAccept(PrintWriter writer, String name) throws Exception {
+		writer.printf("void %s::accept(Visitor *visitor) {visitor->visit(this);}\n", name);
 	}
-	public void writeVisitor(PrintWriter writer, List<Metadata> classDatas) throws Exception {
+	public void writeVisitor(PrintWriter writer) throws Exception {
 		writer.printf("struct Visitor {\n");
-		for (Metadata classData: classDatas)
-			writer.printf("\tvirtual void visit(%s *%s) = 0;\n", classData.name, classData.kind.toLowerCase());
+		for (Metadata metadata: expressions)
+			writer.printf("\tvirtual void visit(%s *%s) = 0;\n", metadata.name, metadata.kind.toLowerCase());
+		for (Metadata metadata: statements)
+			writer.printf("\tvirtual void visit(%s *%s) = 0;\n", metadata.name, metadata.kind.toLowerCase());
 		writer.printf("};\n");
 	}
-	public void writeVisitorImpl(PrintWriter writer, List<Metadata> expressions, String name, List<Metadata> statements) throws Exception {
-		writer.printf("class %s: public Visitor, StatementVisitor {\n", name);
+	public void writeVisitorImpl(PrintWriter writer, String name) throws Exception {
+		writer.printf("class %s: public Visitor {\n", name);
+		writer.printf("public:\n");
 		
+		writer.printf("};");
 	}
 	public boolean notEmpty(String[] fields) {
 		if (fields.length == 1 && fields[0].isEmpty()) return false;
 		return true;
 	}
+	public void writeAll(PrintWriter writer) throws Exception {
+		
+	}
 	public static void main(String[] args) throws Exception {
 		var neem = new Neem();
-		Token[] tokens = Token.values();
-		Opcode[] opcodes = Opcode.values();
 		File file = new File("output.data");
 		FileWriter fileWriter = new FileWriter(file);
 		PrintWriter writer = new PrintWriter(fileWriter, true);
-		Function<Expression, Metadata> emapper = (a) -> Metadata.of(a.name(), a.getData());
-		Function<Statement, Metadata> smapper = (a) -> Metadata.of(a.name(), a.getData());
-		List<Metadata> expressions = Stream.of(Expression.values()).map(emapper).toList();
-		List<Metadata> statements = Stream.of(Statement.values()).map(smapper).toList();
-		List<Metadata> ast = new ArrayList<>();
-		ast.addAll(expressions);
-		ast.addAll(statements);
-		
-		
-		//neem.writeAll(writer, "Expression", expressions);
-		neem.writeAll(writer, "Statement", statements);
-		//neem.writeVisitorImpl(writer, expressions, statements);
+		neem.writeAstData(writer);
 		writer.flush();
 		writer.close();
 	}
