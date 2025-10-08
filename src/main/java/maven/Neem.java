@@ -171,26 +171,92 @@ enum Statement {
 	public String getData() {return data;}
 }
 
-class ClassData {
+class Metadata {
 	public String name;
 	public String data;
-	public String kind;
-	public static ClassData of(String name, String data, String kind) {
-		ClassData classData = new ClassData();
-		classData.name = name;
-		classData.data = data;
-		classData.kind = kind;
-		return classData;
+	public static Metadata of(String name, String data) {
+		Metadata metadata = new Metadata();
+		metadata.name = name;
+		metadata.data = data;
+		return metadata;
 	}
 }
 
 public class Neem {
-	public void writeClassDecl(PrintWriter writer, ClassData data) throws Exception {
+	public void writeAstData(PrintWriter writer) throws Exception {
+		Function<Expression, Metadata> emapper = (a) -> Metadata.of(a.name(), a.getData());
+		Function<Statement, Metadata> smapper = (a) -> Metadata.of(a.name(), a.getData());
+		List<Metadata> expressions = Stream.of(Expression.values()).map(emapper).toList();
+		List<Metadata> statements = Stream.of(Statement.values()).map(smapper).toList();
+		List<Metadata> ast = new ArrayList<>();
+		ast.addAll(expressions);
+		ast.addAll(statements);
+		writer.printf("struct Visitor;\n\n");
+		writeClassDecls(writer, expressions, "Expression");
+		writeClassDecls(writer, statements, "Statement");
+		
 		
 	}
-	public void writeFields(PrintWriter writer, String kind, ClassData data) throws Exception {
+	public void writeClassDecls(PrintWriter writer, List<Metadata> classDatas, String kind) throws Exception {
+		writer.printf("struct %s {\n", kind);
+		writer.printf("\tuint pos;\n");
+		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
+		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
+		writer.printf("};\n\n");
+		for (Metadata data: classDatas) {
+			writer.printf("class %s: public %s\n{\n", data.name, kind);
+			writeFields(writer, kind, data);
+			writer.printf("public:\n");
+			writeConstructorDecl(writer, data);
+			writeGettersDecl(writer, data);
+			writeAcceptDecl(writer, kind);
+			writer.printf("};\n\n");
+		}
+	}
+	public void writeAll(PrintWriter writer, String kind, List<Metadata> classDatas) throws Exception {
+		writer.printf("struct %sVisitor;\n\n", kind);
+		writer.printf("struct %s {\n", kind);
+		writer.printf("\tuint pos;\n");
+		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
+		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
+		writer.printf("};\n\n");
+		for (Metadata classData: classDatas) {
+			writeFields(writer, kind, classData);
+			writer.printf("public:\n");
+			writeConstructorDecl(writer, classData);
+			writeGettersDecl(writer, classData);
+			writeAcceptDecl(writer, kind);
+			writer.printf("};\n\n");
+		}
+		writer.printf("\n");
+		for (Metadata classData: classDatas)
+			writeConstructor(writer, kind, classData);
+		writer.printf("\n");
+		for (Metadata classData: classDatas)
+			writeGetters(writer, classData);
+			writer.printf("\n");
+		for (Metadata classData: classDatas)
+			writeAccept(writer, kind, classData.name);
+			writer.printf("\n");
+	}
+	public void writeClassDecl(PrintWriter writer, Metadata data) throws Exception {
+		writer.printf("struct Visitor;\n\n", data.kind);
+		writer.printf("struct %s {\n", kind);
+		writer.printf("\tuint pos;\n");
+		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
+		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
+		writer.printf("};\n\n");
+		for (Metadata classData: classDatas) {
+			writeFields(writer, kind, classData);
+			writer.printf("public:\n");
+			writeConstructorDecl(writer, classData);
+			writeGettersDecl(writer, classData);
+			writeAcceptDecl(writer, kind);
+			writer.printf("};\n\n");
+		}
+	}
+	public void writeFields(PrintWriter writer, String kind, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
-		writer.printf("class %s: public %s\n{\n", data.name, kind);
 		for (String field: fields) {
 			String[] strs = field.split(" ");
 			writer.printf("\t%s ", strs[0]);
@@ -199,7 +265,7 @@ public class Neem {
 			else writer.printf("m_%s;\n", strs[1]);
 		}
 	}	
-	public void writeConstructorDecl(PrintWriter writer, ClassData data) throws Exception {
+	public void writeConstructorDecl(PrintWriter writer, Metadata data) throws Exception {
 		writer.printf("\t%s(", data.name);
 		String[] fields = data.data.split(";");
 		for (int i = 0; i < fields.length; i++) {
@@ -208,7 +274,7 @@ public class Neem {
 		}
 		writer.printf(", uint pos);\n");
 	}
-	public void writeConstructor(PrintWriter writer, String kind, ClassData data) throws Exception {
+	public void writeConstructor(PrintWriter writer, String kind, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
 		writer.printf("%s::%s(", data.name, data.name);
 		for (int i = 0; i < fields.length; i++) {
@@ -225,7 +291,7 @@ public class Neem {
 		}
 		writer.printf(", %s(pos) {}\n", kind);
 	}
-	public void writeGettersDecl(PrintWriter writer, ClassData data) throws Exception {
+	public void writeGettersDecl(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
 		for (String field: fields) {
 			String[] strs = field.split(" ");
@@ -234,7 +300,7 @@ public class Neem {
 			else writer.printf("\t%s %s() const;\n", strs[0], strs[1]);
 		}
 	}
-	public void writeGetters(PrintWriter writer, ClassData data) throws Exception {
+	public void writeGetters(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
 		for (String field: fields) {
 			String[] strs = field.split(" ");
@@ -249,39 +315,13 @@ public class Neem {
 	public void writeAccept(PrintWriter writer, String kind, String name) throws Exception {
 		writer.printf("void %s::accept(%sVisitor *visitor) {visitor->visit(this);}\n", name, kind);
 	}
-	public void writeVisitor(PrintWriter writer, List<ClassData> classDatas) throws Exception {
+	public void writeVisitor(PrintWriter writer, List<Metadata> classDatas) throws Exception {
 		writer.printf("struct Visitor {\n");
-		for (ClassData classData: classDatas)
+		for (Metadata classData: classDatas)
 			writer.printf("\tvirtual void visit(%s *%s) = 0;\n", classData.name, classData.kind.toLowerCase());
 		writer.printf("};\n");
 	}
-	public void writeAll(PrintWriter writer, String kind, List<ClassData> classDatas) throws Exception {
-		writer.printf("struct %sVisitor;\n\n", kind);
-		writer.printf("struct %s {\n", kind);
-		writer.printf("\tuint pos;\n");
-		writer.printf("\t%s(uint pos) : pos(pos) {}\n", kind);
-		writer.printf("\tvirtual void accept(%sVisitor *visitor) = 0;\n", kind);
-		writer.printf("};\n\n");
-		for (ClassData classData: classDatas) {
-			writeFields(writer, kind, classData);
-			writer.printf("public:\n");
-			writeConstructorDecl(writer, classData);
-			writeGettersDecl(writer, classData);
-			writeAcceptDecl(writer, kind);
-			writer.printf("};\n\n");
-		}
-		writer.printf("\n");
-		for (ClassData classData: classDatas)
-			writeConstructor(writer, kind, classData);
-		writer.printf("\n");
-		for (ClassData classData: classDatas)
-			writeGetters(writer, classData);
-			writer.printf("\n");
-		for (ClassData classData: classDatas)
-			writeAccept(writer, kind, classData.name);
-			writer.printf("\n");
-	}
-	public void writeVisitorImpl(PrintWriter writer, List<ClassData> expressions, String name, List<ClassData> statements) throws Exception {
+	public void writeVisitorImpl(PrintWriter writer, List<Metadata> expressions, String name, List<Metadata> statements) throws Exception {
 		writer.printf("class %s: public Visitor, StatementVisitor {\n", name);
 		
 	}
@@ -296,11 +336,11 @@ public class Neem {
 		File file = new File("output.data");
 		FileWriter fileWriter = new FileWriter(file);
 		PrintWriter writer = new PrintWriter(fileWriter, true);
-		Function<Expression, ClassData> emapper = (a) -> ClassData.of(a.name(), a.getData(), "Expression");
-		Function<Statement, ClassData> smapper = (a) -> ClassData.of(a.name(), a.getData(), "Statement");
-		List<ClassData> expressions = Stream.of(Expression.values()).map(emapper).toList();
-		List<ClassData> statements = Stream.of(Statement.values()).map(smapper).toList();
-		List<ClassData> ast = new ArrayList<>();
+		Function<Expression, Metadata> emapper = (a) -> Metadata.of(a.name(), a.getData());
+		Function<Statement, Metadata> smapper = (a) -> Metadata.of(a.name(), a.getData());
+		List<Metadata> expressions = Stream.of(Expression.values()).map(emapper).toList();
+		List<Metadata> statements = Stream.of(Statement.values()).map(smapper).toList();
+		List<Metadata> ast = new ArrayList<>();
 		ast.addAll(expressions);
 		ast.addAll(statements);
 		
