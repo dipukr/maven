@@ -2,7 +2,6 @@ package maven;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.net.URI;
 
 public class Downloads implements Runnable {
@@ -15,17 +14,16 @@ public class Downloads implements Runnable {
 	
 	@Override
 	public void run() {
-		try (InputStream inputStream = URI.create(url).toURL().openStream()) {
-			String file = url;
-			BufferedInputStream in = new BufferedInputStream(inputStream);
-			FileOutputStream fos = new FileOutputStream(file);
+		try (var inputStream = URI.create(url).toURL().openStream()) {
+			var inStream = new BufferedInputStream(inputStream);
+			var outStream = new FileOutputStream(url);
 			byte[] buffer = new byte[1024];
 			while (true) {
-				int count = in.read(buffer, 0, 1024);
+				int count = inStream.read(buffer, 0, 1024);
 				if (count == -1) break;
-				fos.write(buffer, 0, count);
+				outStream.write(buffer, 0, count);
 			}
-			fos.close();
+			outStream.close();
 		} catch (Exception e) {
 			System.out.println("ERROR: Download failed.");
 		}

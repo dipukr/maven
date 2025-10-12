@@ -1,10 +1,9 @@
 package maven;
 
-import java.net.URL;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class Download {
 
@@ -22,13 +21,13 @@ public class Download {
 
 	public void download() {
 		try (var file = new RandomAccessFile(getFileName(), "rw")) {
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			var connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestProperty("Range", String.format("bytes=%d-", count));
 			connection.connect();
 			this.size = connection.getContentLength();
 			if (size < 1) Error.error("Something is wrong.");
 			file.seek(count);
-			InputStream stream = connection.getInputStream();
+			var stream = connection.getInputStream();
 			byte[] buffer = new byte[MAX_BUFFER_SIZE];
 			while (true) {
 				int read = stream.read(buffer, 0, buffer.length);
@@ -58,8 +57,7 @@ public class Download {
 	}
 
 	public static void main(String[] args) throws Exception {
-		String addr = "https://stackoverflow.com/questions/tagged/python";
-		URL url = new URL(addr);
+		URL url = new URL("https://stackoverflow.com/questions/tagged/python");
 		Download downloader = new Download(url);
 		downloader.download();
 	}
