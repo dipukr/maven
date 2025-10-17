@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class Hacks {
+public class Dict {
 	public void dictionaryAttack(String dictPath, String exePath) throws Exception {
 		List<String> passwords = Files.lines(Path.of(dictPath)).toList();
 		var writer = new FileWriter("/home/dkumar/dict_attack.log");
@@ -31,7 +31,7 @@ public class Hacks {
 		long start = System.currentTimeMillis();
 		String exePath = "/home/dkumar/collection/auth";
 		String dictPath = "/home/dkumar/Data/words";	
-		var algo = new Hacks();
+		var algo = new Dict();
 		algo.dictionaryAttack(dictPath, exePath);
 		System.out.println(System.currentTimeMillis() - start);
 	}

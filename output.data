@@ -1,8 +1,1 @@
-					<ul>
-						<li>Opening a connection to the database using the database driver</li>
-						<li>Opening a TCP socket for reading-writing data</li>
-						<li>The user is authenticated</li>
-						<li>Reading-writing data over the socket</li>
-						<li>Close the connection</li>
-						<li>Close the socket</li>
-					</ul>
+

@@ -18,18 +18,11 @@ public class Dates {
 		private Date start;
 		private Date end;
 		private int data;
-
-		public Range(Date start, Date end) {
-			this.start = start;
-			this.end = end;
-		}
-		
 		public Range(Date start, Date end, int data) {
 			this.start = start;
 			this.end = end;
 			this.data = data;
 		}
-
 		@Override
 		public String toString() {
 			return "[" + df.format(start) + " -> " + df.format(end) + "] " + data;
@@ -50,7 +43,7 @@ public class Dates {
 			if (!start.after(end)) {
 				for (Range range: ranges) {
 					if (!end.before(range.start) && !start.after(range.end)) {
-						result.add(new Range(start, end));
+						result.add(new Range(start, end, 0));
 						break;
 					}
 				}
