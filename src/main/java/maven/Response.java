@@ -5,14 +5,14 @@ import java.util.Map;
 
 public class Response {
 
-	public int statusCode;
-	public String reasonPhrase;
-	public Map<String, String> headers;
-	public String body;
+	private int statusCode;
+	private String reason;
+	private Map<String, String> headers;
+	private String body;
 
 	private Response(Builder builder) {
 		this.statusCode = builder.statusCode;
-		this.reasonPhrase = builder.reasonPhrase;
+		this.reason = builder.reason;
 		this.headers = builder.headers;
 		this.body = builder.body;
 	}
@@ -20,10 +20,15 @@ public class Response {
 	public static Builder builder() {
 		return new Builder();
 	}
+	
+	public int statusCode() {return statusCode;}
+	public String reason() {return reason;}
+	public Map<String, String> headers() {return headers;}
+	public String body() {return body;}
 
 	public static class Builder {
 		private int statusCode;
-		private String reasonPhrase;
+		private String reason;
 		private Map<String, String> headers = new HashMap<>();
 		private String body;
 
@@ -32,8 +37,8 @@ public class Response {
 			return this;
 		}
 
-		public Builder reasonPhrase(String reasonPhrase) {
-			this.reasonPhrase = reasonPhrase;
+		public Builder reason(String reason) {
+			this.reason = reason;
 			return this;
 		}
 
@@ -55,7 +60,7 @@ public class Response {
 		public Response build() {
 			if (statusCode == 0)
 				throw new IllegalStateException("HTTP Status code must be provided");
-			if (reasonPhrase == null)
+			if (reason == null)
 				throw new IllegalStateException("HTTP Reason phrase must be provided");
 			return new Response(this);
 		}

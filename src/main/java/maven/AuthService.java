@@ -3,7 +3,7 @@ package maven;
 public class AuthService {
 
 	private static final AuthService INSTANCE = new AuthService();
-	
+
 	private UserDAO userDAO = new UserDAO();
 
 	public boolean register(String username, String password) {
@@ -17,16 +17,16 @@ public class AuthService {
 	}
 
 	public String login(String username, String password) {
-		User user = userDAO.find(username);
-		if (user != null && user.password().equals(password))
-			return JwtUtils.generateToken(username);
-		return null;
+		return userDAO.find(username)
+				.filter(u -> u.password().equals(password))
+				.map(u -> JwtUtils.generateToken(username))
+				.orElse(null);
 	}
-	
+
 	public boolean verify(String token) {
 		return JwtUtils.verifyToken(token) != null;
 	}
-	
+
 	public static AuthService getInstance() {
 		return INSTANCE;
 	}

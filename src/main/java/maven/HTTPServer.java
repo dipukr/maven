@@ -15,7 +15,6 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +27,10 @@ public class HTTPServer {
 	private Router router = new Router();
 	private ExecutorService pool = Executors.newFixedThreadPool(20);
 	private FileLogger logger = FileLogger.getLogger("/tmp/http_server.log");
+	
+	public HTTPServer(int port) {
+		this.port = port;
+	}
 
 	public void register(String method, String path, Handler handler) {
 		router.register(method, path, handler);
@@ -40,7 +43,7 @@ public class HTTPServer {
 		while (running) {
 			try {
 				Socket clientSocket = serverSocket.accept();
-				pool.submit(() -> handleClient(clientSocket));
+				pool.submit(() -> handle(clientSocket));
 			} catch (IOException ex) {
 				if (running)
 					logger.error(ex.getMessage());
@@ -56,11 +59,11 @@ public class HTTPServer {
 		logger.info("Server stopped.");
 	}
 
-	public void handleClient(Socket client) {
+	public void handle(Socket client) {
 		try (InputStream in = client.getInputStream();
 				OutputStream out = client.getOutputStream();
-				InputStreamReader streamReader = new InputStreamReader(in, UTF_8);
-				OutputStreamWriter streamWriter = new OutputStreamWriter(out, UTF_8);
+				var streamReader = new InputStreamReader(in, UTF_8);
+				var streamWriter = new OutputStreamWriter(out, UTF_8);
 				BufferedReader reader = new BufferedReader(streamReader);
 				BufferedWriter writer = new BufferedWriter(streamWriter)) {
 			String requestLine = reader.readLine();
@@ -121,53 +124,55 @@ public class HTTPServer {
 			Response response;
 			if (handlerOpt.isEmpty()) {
 				response = Response.builder()
-						.statusCode(404)
-						.reasonPhrase("Not Found")
-						.header("Content-Type", "text/plain; charset=utf-8")
-						.body("No handler for " + method + " " + pathOnly)
-						.build();
+								.statusCode(404)
+								.reason("Not Found")
+								.header("Content-Type", "text/plain; charset=utf-8")
+								.body("No handler for " + method + " " + pathOnly)
+								.build();
 			} else {
 				try {
 					response = handlerOpt.get().handle(request);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					response = Response.builder()
-							.statusCode(500)
-							.reasonPhrase("Internal Server Error")
-							.header("Content-Type", "text/plain; charset=utf-8")
-							.body("Handler error: " + ex.getMessage())
-							.build();
+									.statusCode(500)
+									.reason("Internal Server Error")
+									.header("Content-Type", "text/plain; charset=utf-8")
+									.body("Handler error: " + ex.getMessage())
+									.build();
 				}
 			}
-			if (response.headers == null)
-				response.headers = new HashMap<>();
-			if (!response.headers.containsKey("Content-Length")) {
-				response.headers.put("Content-Length",
-						String.valueOf(response.body == null ? 0 : 
-							response.body.getBytes(UTF_8).length));
+			if (!response.headers().containsKey("Content-Length")) {
+				response.headers().put("Content-Length",
+						String.valueOf(response.body() == null ? 0 : 
+							response.body().getBytes(UTF_8).length));
 			}
-			if (!response.headers.containsKey("Connection"))
-				response.headers.put("Connection", "close");
-			writer.write("HTTP/1.1 " + response.statusCode + " " + response.reasonPhrase + "\r\n");
-			for (Entry<String, String> header : response.headers.entrySet())
+			if (!response.headers().containsKey("Connection"))
+				response.headers().put("Connection", "close");
+			writer.write("HTTP/1.1 " + response.statusCode() + " " + response.reason() + "\r\n");
+			for (var header: response.headers().entrySet())
 				writer.write(header.getKey() + ": " + header.getValue() + "\r\n");
 			writer.write("\r\n");
-			if (response.body != null && !response.body.isEmpty())
-				writer.write(response.body);
+			if (response.body() != null && !response.body().isEmpty())
+				writer.write(response.body());
 			writer.flush();
 		} catch (IOException ex) {
 			logger.error(ex.getMessage());
 		}
 	}
 
-	public void sendBadResponse(BufferedWriter writer, int statusCode, String reason, String body) throws IOException {
-		writer.write("HTTP/1.1 " + statusCode + " " + reason + "\r\n");
-        writer.write("Content-Type: text/plain; charset=utf-8\r\n");
-        writer.write("Content-Length: " + body.getBytes(UTF_8).length + "\r\n");
-        writer.write("Connection: close\r\n");
-        writer.write("\r\n");
-        writer.write(body);
-        writer.flush();
+	public void sendBadResponse(BufferedWriter writer, int statusCode, String reason, String body) {
+		try {
+			writer.write("HTTP/1.1 " + statusCode + " " + reason + "\r\n");
+			writer.write("Content-Type: text/plain; charset=utf-8\r\n");
+	        writer.write("Content-Length: " + body.getBytes(UTF_8).length + "\r\n");
+	        writer.write("Connection: close\r\n");
+	        writer.write("\r\n");
+	        writer.write(body);
+	        writer.flush();
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	public Map<String, String> parseQueryParams(String query) {
