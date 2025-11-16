@@ -1,25 +1,33 @@
 package maven;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-record Data(String word, long count) {}
-
 public class Main {
+	public int max(int[] data) {
+		int answer = 0;
+		int subans = 0;
+		for (int i = 0; i < data.length; i++) {
+			if (data[i] == 1) {
+				subans += 1;
+			} else {
+				answer = Math.max(answer, subans);
+				subans = 0;
+			}
+		}
+		return answer;
+	}
+	public int max(int[] data, int i) {
+		
+		return 0;
+	}
+	public int max(int[][] data) {
+		int answer = 0;
+		
+		return answer;
+	}
 	public static void main(String[] args) throws Exception {
-		var words = new ArrayList<String>();
-		words.add("hello");
-		words.add("hello");
-		words.add("world");
-		int n = 1;
-		Map<String, Long> result = words.stream()
-				.collect(Collectors.groupingBy(elem-> elem, Collectors.counting()));
-		List<Data> datas = result.entrySet().stream()
-			.map(elem -> new Data(elem.getKey(), elem.getValue()))
-			.sorted(Comparator.comparing(Data::count)).toList();
-		System.out.println(datas.get(n - 1));
+		var main = new Main();
+		int[] data = {0,1,1,0,1,1,1,0};
+		int[][] mat = {{0,1,1,0,1},{1,1,0,1,0},{0,1,1,1,0},
+				{1,1,1,1,0},{1,1,1,1,1},{0,0,0,0,0}};
+		System.out.println(main.max(data));
 	}
 }
