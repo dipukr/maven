@@ -12,8 +12,6 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.Function;
 
 public class TCPServer {
@@ -28,14 +26,13 @@ public class TCPServer {
 	}
 
 	public void start() {
-		ExecutorService executorService = Executors.newFixedThreadPool(4);
 		try (var serverSocket = new ServerSocket(port);
 			var writer = new FileWriter("/tmp/log/server.log", true)) {
 			while (true) {
 				System.out.printf("Listening at port %d.\n", port);
 				Socket clientSocket = serverSocket.accept();
 				logger(writer, clientSocket);
-				executorService.execute(() -> handle(clientSocket));
+				Thread.ofVirtual().start(() -> handle(clientSocket));
 			}
 		} catch (Exception e) {
 			

@@ -17,7 +17,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
-public class MonDB {
+public class MongoDB {
 	public static Set<String> findAllMeterNos(MongoCollection<Document> meterDetailsColl) {
 		FindIterable<Document> data = meterDetailsColl.find();
 		Set<String> meterNos = new TreeSet<>();

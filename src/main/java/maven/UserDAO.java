@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 public class UserDAO {
 	
@@ -18,14 +19,14 @@ public class UserDAO {
 		return new ArrayList<>(data.values());
 	}
 
-	public User find(int id) {
-		return data.get(id);
+	public Optional<User> find(int id) {
+		return Optional.ofNullable(data.get(id));
 	}
 
-	public User find(String username) {
+	public Optional<User> find(String username) {
 		for (Entry<Integer, User> elem: data.entrySet())
-			if (elem.getValue().username().equals(username))
-				return elem.getValue();
-		return null;
+			if (elem.getValue().name().equals(username))
+				return Optional.ofNullable(elem.getValue());
+		return Optional.empty();
 	}
 }

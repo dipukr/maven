@@ -10,11 +10,11 @@ public class Request {
 	public static final String GET = "GET";
 	public static final String POST = "POST";
 	
-	private final String method;
-	private final String url;
-	private final Map<String, String> headers;
-	private final Map<String, String> queryParams;
-	private final String body;
+	private String method;
+	private String url;
+	private Map<String, String> headers = new HashMap<>();
+	private Map<String, String> queryParams = new HashMap<>();
+	private String body;
 
 	private Request(Builder builder) {
 		this.method = builder.method;
@@ -31,6 +31,12 @@ public class Request {
 	public static Builder builder() {
 		return new Builder();
 	}
+	
+	public String method() {return method;}
+	public String url() {return url;}
+	public Map<String, String> headers() {return headers;}
+	public Map<String, String> queryParams() {return queryParams;}
+	public String body() {return body;}
 
 	public static class Builder {
 		private String method;
@@ -55,7 +61,7 @@ public class Request {
 		}
 		
 		public Builder headers(Map<String, String> headers) {
-			this.headers = headers;
+			headers.forEach((k, v) -> headers.put(k, v));
 			return this;
 		}
 
@@ -65,7 +71,7 @@ public class Request {
 		}
 		
 		public Builder queryParams(Map<String, String> queryParams) {
-			this.queryParams = queryParams;
+			queryParams.forEach((k, v) -> queryParams.put(k, v));
 			return this;
 		}
 

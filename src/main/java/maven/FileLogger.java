@@ -8,7 +8,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class FileLogger {
+public final class FileLogger {
 	
 	private DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 	private PrintWriter writer;
@@ -40,7 +40,6 @@ public class FileLogger {
 		data.append(String.format(format, args));
 		data.append('\n');
 		writer.write(data.toString());
-		writer.flush();
 	}
 	
 	public static FileLogger getLogger(String fileName) {

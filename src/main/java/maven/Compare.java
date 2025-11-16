@@ -29,14 +29,13 @@ public class Compare {
 				String cell2Str = cell2.toString();
 				BigDecimal cell1Val = new BigDecimal(cell1Str);
 				BigDecimal cell2Val = new BigDecimal(cell2Str);
-				
 			}
 		}
 	}
 	
 	public static void main(String[] args) throws Exception {
-		String dir = "/home/dkumar/";
-		File file1 = new File(dir + "dsm-reports.xlsx");
-		File file2 = new File(dir + "solar-power.xlsx");
+		final String home = System.getenv("HOME");
+		File file1 = new File(home + "dsm-reports.xlsx");
+		File file2 = new File(home + "solar-power.xlsx");
 	}
 }

@@ -7,13 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class Dict {
-	public void dictionaryAttack(String dictPath, String exePath) throws Exception {
-		List<String> passwords = Files.lines(Path.of(dictPath)).toList();
-		var writer = new FileWriter("/home/dkumar/dict_attack.log");
+public class Passowrd {
+	public void apply(String exePath, String dictPath) throws Exception {
+		FileWriter writer = new FileWriter("/home/dkumar/dict.log");
+		List<String> passwords = Files.lines(Path.of(dictPath))
+				.toList();
 		Runtime runtime = Runtime.getRuntime();
 		for (String password: passwords) {
-			Process process = runtime.exec(exePath);
+			Process process = runtime.exec(exePath.toString());
 			InputStream inputStream = process.getInputStream();
 			OutputStream outputStream = process.getOutputStream();
 			outputStream.write(password.getBytes());
@@ -29,10 +30,11 @@ public class Dict {
 	
 	public static void main(String[] args) throws Exception {
 		long start = System.currentTimeMillis();
-		String exePath = "/home/dkumar/collection/auth";
-		String dictPath = "/home/dkumar/Data/words";	
-		var algo = new Dict();
-		algo.dictionaryAttack(dictPath, exePath);
+		System.out.println(System.getenv("HOME"));
+		String exe = "/home/dkumar/collection/auth";
+		String dict = "/home/dkumar/Data/words";	
+		var algo = new Passowrd();
+		algo.apply(exe, dict);
 		System.out.println(System.currentTimeMillis() - start);
 	}
 }

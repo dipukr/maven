@@ -1,21 +1,21 @@
 package maven;
 
-public class Server {
-	
-	private String host;
-	private int port;
-	
-	public Server(String host, int port) {
-		this.host = host;
-		this.port = port;
-	}
+import java.io.ObjectInputStream;
+import java.net.ServerSocket;
 
-	public int getPort() {return port;}
-	public void setPort(int port) {this.port = port;}
-	public String getHost() {return host;}
-	public void setHost(String host) {this.host = host;}
-	
-	public static Server of(String host, int port) {
-		return new Server(host, port);
+public class Server {
+	public static final int PORT = 8780;
+
+	public static void main(String[] args) throws Exception {
+		var server = new ServerSocket(PORT);
+		System.out.println("Server running...");
+		var client = server.accept();
+		System.out.println("Accepted connection");
+		var inStream = client.getInputStream();
+		var reader = new ObjectInputStream(inStream);
+		Packet packet = (Packet) reader.readObject();
+		System.out.println(packet);
+		client.close();
+		server.close();
 	}
 }

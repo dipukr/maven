@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class LoadBalancer {
+public class Balancer {
 
 	public static final int ROUND_ROBIN = 1;
 	public static final int WT_ROUND_ROBIN = 2;
@@ -20,16 +20,18 @@ public class LoadBalancer {
 	public static final int WT_LEAST_CONN = 5;
 	public static final int LEAST_RESP_TIME = 6;
 	public static final int RESOURCE = 7;
+	
+	record Node(String host, int port) {}
 
 	private FileLogger logger = FileLogger.getLogger("/tmp/load_balancer.log");
 	private ExecutorService pool = Executors.newFixedThreadPool(20);
-	private List<Server> backends = new CopyOnWriteArrayList<>();
+	private List<Node> backends = new CopyOnWriteArrayList<>();
 	private AtomicInteger counter = new AtomicInteger(0);
-	private boolean running = false;
 	private ServerSocket serverSocket;
+	private boolean running = false;
 	private int port;
 
-	public LoadBalancer(int port) {
+	public Balancer(int port) {
 		this.port = port;
 	}
 
@@ -53,18 +55,18 @@ public class LoadBalancer {
 		logger.info("Server stopped.");
 	}
 
-	public void addServer(Server server) {
+	public void addServer(Node server) {
 		backends.add(server);
 	}
 
-	public void removeServer(Server server) {
+	public void removeServer(Node server) {
 		backends.remove(server);
 	}
 
 	public void handleClient(Socket client) {
 		int index = counter.getAndIncrement() % backends.size();
-		Server backend = backends.get(index);
-		try (Socket backendSocket = new Socket(backend.getHost(), backend.getPort());
+		Node backend = backends.get(index);
+		try (Socket backendSocket = new Socket(backend.host(), backend.port());
 				InputStream clientIn = client.getInputStream();
 				OutputStream clientOut = client.getOutputStream();
 				InputStream backendIn = backendSocket.getInputStream();
@@ -86,13 +88,13 @@ public class LoadBalancer {
 		}
 	}
 
-	public void forward(InputStream in, OutputStream out) {
+	public void forward(InputStream inStream, OutputStream outStram) {
 		try {
 			byte[] buffer = new byte[8192];
 			int read = 0;
-			while ((read = in.read(buffer)) != -1) {
-				out.write(buffer, 0, read);
-				out.flush();
+			while ((read = inStream.read(buffer)) != -1) {
+				outStram.write(buffer, 0, read);
+				outStram.flush();
 			}
 		} catch (IOException e) {
 			logger.error(e.getMessage());
