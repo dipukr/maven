@@ -31,7 +31,8 @@ public class MongoDB {
 		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Date fromDate = df.parse(from);
 		Date toDate = df.parse(to);
-		Bson dateFilter = Filters.and(Filters.gte("forDate", fromDate), Filters.lte("forDate", toDate));
+		Bson dateFilter = Filters.and(Filters.gte("forDate", fromDate), 
+				Filters.lte("forDate", toDate));
 		Bson meterFilter = Filters.in("meterNo", meterNos);
 		Bson filter = Filters.and(dateFilter, meterFilter);
 		FindIterable<Document> meterData = coll.find(filter);

@@ -1,8 +1,8 @@
 package maven;
 
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.util.HashMap;
+import java.net.Socket;
 
 public class Client {
 	public static void main(String[] args) throws Exception {

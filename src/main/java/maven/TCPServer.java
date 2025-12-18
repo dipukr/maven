@@ -15,8 +15,7 @@ import java.util.Date;
 import java.util.function.Function;
 
 public class TCPServer {
-	
-	private static final DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+	private DateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 	private Function<String, String> function;
 	private int port;
 
@@ -35,7 +34,7 @@ public class TCPServer {
 				Thread.ofVirtual().start(() -> handle(clientSocket));
 			}
 		} catch (Exception e) {
-			
+			System.out.printf("ERROR: %s\n", e.getMessage());
 		}
 	}
 

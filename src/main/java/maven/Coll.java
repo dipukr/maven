@@ -1,24 +1,24 @@
 package maven;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 public class Coll {
-	public static String longestString(String[] strs) {
-		Map<String, Integer> strToLen = Stream.of(strs)
-				.collect(Collectors.toMap(Function.identity(), String::length));
-		return strToLen.entrySet().stream()
-				.sorted(Collections.reverseOrder(Entry.comparingByValue()))
-				.findFirst()
-				.get()
-				.getKey();
-	}
 	public static void main(String[] args) throws Exception {
-		String[] data= {"hello", "hi", "wordldf!", "dep"};
-		System.out.println(longestString(data));
+		var data = new TreeMap<Integer, String>();
+		data.put(1, "one");
+		data.put(2, "two");
+		data.put(3, "three");
+		data.put(4, "four");
+		data.put(5, "five");
+		data.put(6, "six");
+		data.put(7, "seven");
+		data.put(8, "eight");
+		data.put(9, "nine");
+		var tbl = new HashMap<Integer, String>();
+		tbl.put(1, "one");
+		tbl.put(2, "two");
+		tbl.putIfAbsent(2, "two1");
+		System.out.println(tbl.get(2));
 	}
 }

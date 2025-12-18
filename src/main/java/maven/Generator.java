@@ -6,7 +6,7 @@ enum Gender {Male, Female}
 enum Day {Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday}
 enum Month {January, Febuary, March, April, May, June, July, August, September, October, November, December}
 enum Season {Spring, Summer, Autumn, Winter}
-enum Color {Red, Green, Blue, Yellow, Black, White, Orange, Purple, Brown, Pink}
+enum Colors {Red, Green, Blue, Yellow, Black, White, Orange, Purple, Brown, Pink}
 enum Planet {Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune}
 enum Direction {North, South, East, West}
 enum Size {Small, Medium, Large, ExtraLarge}

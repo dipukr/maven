@@ -9,7 +9,7 @@
 	<url>http://www.example.com</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.release>17</maven.compiler.release>
+		<maven.compiler.release>21</maven.compiler.release>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -56,7 +56,7 @@
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongodb-driver-sync</artifactId>
-			<version>4.11.0</version> <!-- Use latest version -->
+			<version>4.11.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>
@@ -111,4 +111,15 @@
 			<version>5.2.0</version>
 		</dependency>
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<proc>none</proc>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
