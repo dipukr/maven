@@ -1,13 +1,11 @@
 package maven;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 
 public class DBPool {
-	
 	private static HikariDataSource dataSource;
 
 	static {
@@ -24,12 +22,7 @@ public class DBPool {
 		dataSource = new HikariDataSource(config);
 	}
 	
-	public static Connection getConnection() {
-		try {
-			return dataSource.getConnection();
-		} catch (SQLException e) {
-			System.out.printf(e.getMessage());
-			return null;
-		}
+	public static Connection getConnection() throws SQLException {
+		return dataSource.getConnection();
 	}
 }

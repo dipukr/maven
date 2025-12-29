@@ -5,9 +5,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class Command {
-	public static void main(final String[] args) throws Exception {
-		Runtime runtime = Runtime.getRuntime();
-		Process process = runtime.exec("find");
+	public static void main(String[] args) throws Exception {
+		var processBuilder = new ProcessBuilder("find");
+		Process process = processBuilder.start();
 		InputStream inputStream = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(inputStream);
 		BufferedReader reader = new BufferedReader(isr);

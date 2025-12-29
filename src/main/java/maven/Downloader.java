@@ -7,7 +7,6 @@ import java.net.URI;
 import java.net.URL;
 
 public class Downloader {
-
 	private static final int MAX_BUFFER_SIZE = 1024;
 
 	private URL url;
@@ -21,12 +20,11 @@ public class Downloader {
 	}
 
 	public void download() {
-		try (var file = new RandomAccessFile(getFileName(), "rw")) {
+		try (var file = new RandomAccessFile("output.data", "rw")) {
 			var connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestProperty("Range", String.format("bytes=%d-", count));
 			connection.connect();
 			this.size = connection.getContentLength();
-			//if (size < 1) Error.error("Something is wrong.");
 			file.seek(count);
 			var stream = connection.getInputStream();
 			byte[] buffer = new byte[MAX_BUFFER_SIZE];
@@ -50,7 +48,7 @@ public class Downloader {
 	}
 	
 	public double getProgress() {
-		return ((double) count / size) * 100;
+		return ((double) count / size) * 100.0;
 	}
 	
 	public String getFileName() {

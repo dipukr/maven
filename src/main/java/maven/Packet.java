@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class Packet implements Serializable {
-	
 	public Map<String, String> headers;
 	public String data;
 
@@ -15,6 +14,6 @@ public class Packet implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Packet[headers=" + headers + ", body=" + data + "]";
+		return String.format("Packet[headers=%s, body=%s]", headers, data);
 	}
 }

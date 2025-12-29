@@ -184,7 +184,6 @@ class Metadata {
 }
 
 public class Neem {
-	
 	private final String EXPR = "Expression";
 	private final String STMT = "Statement";
 	private Function<Expression, Metadata> emapper = (a) -> Metadata.of(a.name(), a.getData(), EXPR);
