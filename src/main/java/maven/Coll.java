@@ -1,19 +1,12 @@
 package maven;
 
+import java.util.Arrays;
 import java.util.TreeMap;
 
 public class Coll {
 	public static void main(String[] args) throws Exception {
-		var data = new TreeMap<Integer, String>();
-		data.put(1, "one");
-		data.put(2, "two");
-		//data.put(3, "three");
-		data.put(4, "four");
-		data.put(5, "five");
-		data.put(6, "six");
-		data.put(7, "seven");
-		data.put(8, "eight");
-		data.put(9, "nine");
-		System.out.println(data.tailMap(3));
+		String[] ss = "key||value".split("\\|");
+		for (String s: ss) System.out.println(s);
+		System.out.println(ss.length);
 	}
 }
