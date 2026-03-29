@@ -199,6 +199,7 @@ public class Neem {
 		writeClassDefs(writer, expressions);
 		writeClassDefs(writer, statements);
 	}
+	
 	public void writeClassDecls(PrintWriter writer, List<Metadata> metadatas) throws Exception {
 		final String kind = metadatas.get(0).kind;
 		writer.printf("struct %s {\n", kind);
@@ -216,6 +217,7 @@ public class Neem {
 			writer.printf("};\n\n");
 		}
 	}
+	
 	public void writeClassDefs(PrintWriter writer, List<Metadata> metadatas) throws Exception {
 		for (Metadata metadata: metadatas)
 			writeConstructor(writer, metadata);
@@ -227,6 +229,7 @@ public class Neem {
 			writeAccept(writer, metadata.name);
 			writer.printf("\n");
 	}
+	
 	public void writeFields(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
 		if (notEmpty(fields)) {
@@ -239,6 +242,7 @@ public class Neem {
 			}
 		}
 	}	
+	
 	public void writeConstructorDecl(PrintWriter writer, Metadata data) throws Exception {
 		writer.printf("\t%s(", data.name);
 		String[] fields = data.data.split(";");
@@ -249,6 +253,7 @@ public class Neem {
 		}
 		writer.printf("uint pos);\n");
 	}
+	
 	public void writeConstructor(PrintWriter writer, Metadata metadata) throws Exception {
 		writer.printf("%s::%s(", metadata.name, metadata.name);
 		String[] fields = metadata.data.split(";");
@@ -269,6 +274,7 @@ public class Neem {
 		}
 		writer.printf("%s(pos) {}\n", metadata.kind);
 	}
+	
 	public void writeGettersDecl(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
 		if (notEmpty(fields)) {
@@ -280,6 +286,7 @@ public class Neem {
 			}
 		}
 	}
+	
 	public void writeGetters(PrintWriter writer, Metadata data) throws Exception {
 		String[] fields = data.data.split(";");
 		if (notEmpty(fields)) {
@@ -291,12 +298,15 @@ public class Neem {
 			}
 		}
 	}
+	
 	public void writeAcceptDecl(PrintWriter writer) throws Exception {
 		writer.printf("\tvoid accept(Visitor *visitor);\n");
 	}
+	
 	public void writeAccept(PrintWriter writer, String name) throws Exception {
 		writer.printf("void %s::accept(Visitor *visitor) {visitor->visit(this);}\n", name);
 	}
+	
 	public void writeVisitor(PrintWriter writer) throws Exception {
 		writer.printf("struct Visitor {\n");
 		for (Metadata metadata: expressions)
@@ -305,19 +315,23 @@ public class Neem {
 			writer.printf("\tvirtual void visit(%s *%s) = 0;\n", metadata.name, metadata.kind.toLowerCase());
 		writer.printf("};\n");
 	}
+	
 	public void writeVisitorImpl(PrintWriter writer, String name) throws Exception {
 		writer.printf("class %s: public Visitor {\n", name);
 		writer.printf("public:\n");
 		
 		writer.printf("};");
 	}
+	
 	public boolean notEmpty(String[] fields) {
 		if (fields.length == 1 && fields[0].isEmpty()) return false;
 		return true;
 	}
+	
 	public void writeAll(PrintWriter writer) throws Exception {
 		
 	}
+	
 	public static void main(String[] args) throws Exception {
 		var neem = new Neem();
 		File file = new File("output.data");

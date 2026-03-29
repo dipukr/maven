@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConfig {
-	private static final String URL = "jdbc:mysql://127.0.0.1:3306/authdb?useSSL=false";
+	private static final String URL = "jdbc:mysql://127.0.0.1:3306/auth_data?useSSL=false";
 	private static final String USER = "root";
 	private static final String PASS = "Root@123";
 	

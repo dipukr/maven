@@ -5,7 +5,7 @@ import redis.clients.jedis.JedisPubSub;
 
 public class Subscriber {
 	public static void main(String[] args) {
-		try (Jedis jedis = new Jedis("localhost", 6379)) {
+		try (var jedis = new Jedis("localhost", 6379)) {
 			jedis.subscribe(new JedisPubSub() {
 				@Override
 				public void onMessage(String channel, String message) {
