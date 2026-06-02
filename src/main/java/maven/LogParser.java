@@ -1,5 +1,6 @@
 package maven;
 
+import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -12,11 +13,20 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Clock;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 
@@ -41,6 +51,49 @@ public class LogParser {
 		Matcher m = p.matcher(headers);
 		return m.find() ? m.group(1).trim() : null;
 	}
+	
+	public static void exportToExcel(List<SummaryData> summaryData, String filePath) throws Exception {
+        String[] headers = {"Company Name", "User Name", "Likes", "Dislikes"};
+ 
+        try (Workbook workbook = new XSSFWorkbook();
+             FileOutputStream out = new FileOutputStream(filePath)) {
+ 
+            Sheet sheet = workbook.createSheet("Summary");
+ 
+            // --- header style ---
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+ 
+            // --- header row ---
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+ 
+            // --- data rows ---
+            int rowIdx = 1;
+            for (SummaryData d : summaryData) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(d.companyName());
+                row.createCell(1).setCellValue(d.userName());
+                row.createCell(2).setCellValue(d.likes());
+                row.createCell(3).setCellValue(d.dislikes());
+            }
+ 
+            // --- auto-size columns ---
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+ 
+            workbook.write(out);
+        }
+    }
 
 	public static List<DataElem> ingestData(List<String> requestLines) throws Exception {
 		var data = new ArrayList<DataElem>();
@@ -111,5 +164,6 @@ public class LogParser {
 		
 		List<SummaryData> summaryData = getSummary(data);
 		summaryData.forEach(System.out::println);
+		exportToExcel(summaryData, "data.xlsx");
 	}
 }
