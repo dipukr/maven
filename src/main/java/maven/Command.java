@@ -11,7 +11,7 @@ public class Command {
 		InputStream inputStream = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(inputStream);
 		BufferedReader reader = new BufferedReader(isr);
-		StringBuilder data = new StringBuilder();
+		var data = new StringBuilder();
 		while (true) {
 			String line = reader.readLine();
 			if (line == null) break;

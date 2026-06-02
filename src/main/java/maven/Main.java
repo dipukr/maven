@@ -75,19 +75,14 @@ public class Main {
 		
 		return answer;
 	}
+	public static int test() {
+		try {
+			return 1;
+		} finally {
+			return 894;
+		}
+	}
 	public static void main(String[] args) throws Exception {
-		System.out.println("hellow");
-		var main = new Main();
-		int[] data = {0,1,1,0,1,1,1,0};
-		int[][] mat = {{0,1,1,0,1},{1,1,0,1,0},{0,1,1,1,0},
-				{1,1,1,1,0},{1,1,1,1,1},{0,0,0,0,0}};
-		System.out.println(main.max(data));
-		var set = new HashSet<Integer>();
-		set.add(100);
-		set.add(200);
-		set.add(300);
-		System.out.println(set);
-		System.out.println("hello");
-		main.drawMat(mat);
+		System.out.println(test());
 	}
 }
