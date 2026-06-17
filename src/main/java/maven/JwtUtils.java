@@ -8,25 +8,24 @@ import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtUtils {
-	
 	private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-	public static String generateToken(String username) {
+	public String generateToken(String username) {
 		return Jwts.builder()
-				.setSubject(username)
-				.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
-				.signWith(key)
-				.compact();
+			.setSubject(username)
+			.setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1h
+			.signWith(key)
+			.compact();
 	}
 
-	public static String verifyToken(String token) {
+	public String verifyToken(String token) {
 		try {
 			return Jwts.parserBuilder()
-					.setSigningKey(key)
-					.build()
-					.parseClaimsJws(token)
-					.getBody()
-					.getSubject();
+				.setSigningKey(key)
+				.build()
+				.parseClaimsJws(token)
+				.getBody()
+				.getSubject();
 		} catch (JwtException e) {
 			return null;
 		}

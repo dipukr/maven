@@ -24,7 +24,7 @@ enum MaleFirst {Aarav, Abhishek, Ajay, Akash, Akshay, Alok, Aman, Anand, Ankit, 
 enum FemaleFirst {Aanya, Aditi, Amrita, Anjali, Ayesha, Bhavana, Divya, Jyoti, Kajal, Kavita,
     Kirti, Lakshmi, Meena, Neha, Neelam, Pooja, Priya, Priyanka, Rekha, Riya, Sakshi,
     Seema, Shreya, Sneha, Sunita, Swati, Tanvi}
-enum Surname {Gupta, Dube, Chaube, Trivedi, Chaturvedi, Mishra, Jha, Joshi, Sah, Modi, Kumar}
+enum Surname {Raj, Kumar, Gupta, Dube, Chaube, Trivedi, Chaturvedi, Mishra, Jha, Joshi, Sah, Modi}
 
 public class Generator {
 	public static final String ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

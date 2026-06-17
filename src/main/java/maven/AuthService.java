@@ -2,9 +2,9 @@ package maven;
 
 public class AuthService {
 	private static final AuthService INSTANCE = new AuthService();
-
+	private JwtUtils jwtUtils = new JwtUtils();
 	private UserDAO userDAO = new UserDAO();
-
+	
 	public boolean register(String username, String password) {
 		if (userDAO.find(username) != null) {
 			System.out.println("User already exists.");
@@ -18,12 +18,12 @@ public class AuthService {
 	public String login(String username, String password) {
 		return userDAO.find(username)
 			.filter(u -> u.password().equals(password))
-			.map(u -> JwtUtils.generateToken(username))
+			.map(u -> jwtUtils.generateToken(username))
 			.orElse(null);
 	}
 
 	public boolean verify(String token) {
-		return JwtUtils.verifyToken(token) != null;
+		return jwtUtils.verifyToken(token) != null;
 	}
 
 	public static AuthService getInstance() {

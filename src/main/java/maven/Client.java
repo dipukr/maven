@@ -11,7 +11,7 @@ public class Client {
 		headers.put("Content-Type", "JSON");
 		headers.put("Cookie", "ccc");
 		var packet = new Packet(headers, body);
-		var server = new Socket("127.0.0.1", Server.PORT);
+		var server = new Socket("127.0.0.1", 8780);
 		var outStream = server.getOutputStream();
 		var writer = new ObjectOutputStream(outStream);
 		writer.writeObject(packet);

@@ -12,7 +12,7 @@ public class CRC {
 		var crc32 = new CRC32();
 		for (String line: Files.readAllLines(filePath, StandardCharsets.UTF_8))
 	        crc32.update(line.getBytes(StandardCharsets.UTF_8));
-		int checksum = (int) crc32.getValue();
-		System.out.printf("Checksum: %d", checksum);
+		long checksum = crc32.getValue();
+		System.out.printf("Checksum: %d", (int) checksum);
 	}
 }

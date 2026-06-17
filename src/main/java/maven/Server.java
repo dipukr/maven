@@ -4,10 +4,8 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 
 public class Server {
-	public static final int PORT = 8780;
-
 	public static void main(String[] args) throws Exception {
-		var server = new ServerSocket(PORT);
+		var server = new ServerSocket(8780);
 		System.out.println("Server running...");
 		var client = server.accept();
 		System.out.println("Accepted connection");

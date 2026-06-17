@@ -3,10 +3,9 @@ package maven;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 public class Search {
 	public Search(String projectDir, String needle) {
@@ -25,7 +24,8 @@ public class Search {
 	}
 
 	public int runMavenCopy(String projectDir) {
-		var pb = new ProcessBuilder("mvn.cmd", "dependency:copy-dependencies", "-DoutputDirectory=target/deps");
+		var pb = new ProcessBuilder("mvn.cmd", "dependency:copy-dependencies",
+				"-DoutputDirectory=target/deps");
 		pb.directory(new File(projectDir));
 		pb.inheritIO();
 
@@ -34,7 +34,7 @@ public class Search {
 			return process.waitFor();
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
-			System.out.println("ERROR: could not start Maven");
+			System.out.println("ERROR: could not start Maven.");
 			return -1;
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
@@ -63,7 +63,7 @@ public class Search {
 	}
 
 	public boolean jarContains(File jar, String needle) {
-		try (ZipFile zf = new ZipFile(jar)) {
+		try (var zf = new ZipFile(jar)) {
 			return zf.stream()
 				 .map(ZipEntry::getName)
 				 .anyMatch(name -> name.endsWith(".class") && name.contains(needle));

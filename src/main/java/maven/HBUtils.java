@@ -10,8 +10,8 @@ public class HBUtils {
 
 	static {
 		try {
-			Configuration configuration = new Configuration();
-			Properties settings = new Properties();
+			var configuration = new Configuration();
+			var settings = new Properties();
 			settings.put(Environment.DRIVER, "com.mysql.cj.jdbc.Driver");
 			settings.put(Environment.URL, "jdbc:mysql://localhost:3306/testdb?createDatabaseIfNotExist=true");
 			settings.put(Environment.USER, "root");
@@ -24,6 +24,7 @@ public class HBUtils {
 			sessionFactory = configuration.buildSessionFactory();
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("Error");
 		}
 	}
 
