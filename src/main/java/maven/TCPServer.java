@@ -26,15 +26,15 @@ public class TCPServer {
 
 	public void start() {
 		try (var serverSocket = new ServerSocket(port);
-			var writer = new FileWriter("/tmp/log/server.log", true)) {
+			var writer = new FileWriter("/tmp/log/tcp-serverlog", true)) {
 			while (true) {
-				System.out.printf("Listening at port %d.\n", port);
+				System.out.printf("Listening at port %d.%n", port);
 				Socket clientSocket = serverSocket.accept();
 				logger(writer, clientSocket);
 				Thread.ofVirtual().start(() -> handle(clientSocket));
 			}
 		} catch (Exception e) {
-			System.out.printf("ERROR: %s\n", e.getMessage());
+			System.out.printf("ERROR: %s%n", e.getMessage());
 		}
 	}
 
@@ -48,7 +48,7 @@ public class TCPServer {
 			writer.writeBytes(function.apply(data));
 			writer.writeChar('\n');
 		} catch (Exception e) {
-			System.out.printf("ERROR: %s\n", e.getMessage());
+			System.out.printf("ERROR: %s%n", e.getMessage());
 		}
 	}
 	

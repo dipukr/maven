@@ -18,7 +18,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
 public class MongoDB {
-	public static Set<String> findAllMeterNos(MongoCollection<Document> meterDetailsColl) {
+	public Set<String> findAllMeterNos(MongoCollection<Document> meterDetailsColl) {
 		FindIterable<Document> data = meterDetailsColl.find();
 		Set<String> meterNos = new TreeSet<>();
 		for (Document document: data)
@@ -26,7 +26,7 @@ public class MongoDB {
 		return meterNos;
 	}
 	
-	public static void meterData(MongoCollection<Document> coll, Set<String> meterNos, String from, String to) throws Exception {
+	public void meterData(MongoCollection<Document> coll, Set<String> meterNos, String from, String to) throws Exception {
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		Date fromDate = df.parse(from);
@@ -47,7 +47,7 @@ public class MongoDB {
 			MongoDatabase database = mongoClient.getDatabase("samast");
 			var meterDetailsColl = database.getCollection("SecureMeterDetails");
 			var meterDataColl = database.getCollection("pnPR_VEELoadSuveyData");
-			Set<String> meterNos = findAllMeterNos(meterDetailsColl);
+			Set<String> meterNos = new MongoDB().findAllMeterNos(meterDetailsColl);
 		}
 	}
 }

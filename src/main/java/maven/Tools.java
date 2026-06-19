@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class SHA {
+public class Tools {
 	public static String sha256(String input) {
 		try {
 			var digest = MessageDigest.getInstance("SHA-256");
@@ -19,8 +19,5 @@ public class SHA {
 		} catch (NoSuchAlgorithmException e) {
 			return null;
 		}
-	}
-	public static void main(String[] args) {
-		System.out.println(sha256("hello"));
 	}
 }
